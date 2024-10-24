@@ -26,7 +26,9 @@
 .search-btn {
 background: rgba(0, 20, 52, 1);
 border-radius: 100%;
-padding: 16px 20px;
+/* padding: 16px 20px; */
+width: 37px;
+height: 37px;
 }
 
 .search-form {
@@ -42,8 +44,8 @@ padding: 16px 20px;
     font-size: 14px;
     font-weight: 500;
     color: #333;
+    gap: 5px;
 }
-
 .card {
     border-radius: 10px;
 }
@@ -128,4 +130,107 @@ padding: 16px 20px;
 
 .card {
     border-radius: 8px;
+}
+.upload-hidden-btn{
+    height: 35px;
+}
+.upload-hidden-btn input[type="file"]{
+    cursor: pointer;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+}
+.light-cyan-bg{
+    background-color: #DEF2FF;
+}
+.midnight-blue{
+    color: #052044;
+}
+.close-doc{
+    right: -5px;
+    top: -10px;
+}
+.navbar-nav .nav-link{
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+.nav-link.active{
+    color: #349AFF !important;
+    border-bottom: 2px solid #349AFF;
+}
+.case-list{
+    border-radius: 20px;
+    box-shadow: 0 0 24px rgba(30, 30, 30, 0.15);
+}
+.case-list table{
+    border-width: 0 !important;
+}
+.case-list th{
+    color: #8B909A;
+    font-size: 13px;
+    font-weight: 400;
+    text-transform: uppercase;
+}
+.case-list td{
+    font-size: 15px;
+}
+.case-list th, .case-list td{
+    padding: 10px 20px;
+}
+.case-list .table-striped>tbody>tr:nth-of-type(odd)>*,
+.case-list td,
+.case-list .table-striped>tbody>tr:hover,
+.case-list td:hover{
+    background-color: #fff !important;
+    --bs-table-striped-bg: #fff !important;
+    --bs-table-hover-bg: #fff !important;
+}
+.dot{
+    background-color: #C6DAF9;
+    border-radius: 50%;
+    height: 18px;
+    width: 18px;
+}
+.bell-count{
+    background-color: #EA5455;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+    height: 18px;
+    width: 18px;
+    right: -9px;
+    top:-5px;
+}
+.pagination-controls button{
+    background-color: #F1F2F6;
+    border: none;
+    border-radius: 4px;
+    height: 28px;
+    width: 28px;
+}
+.uploaded-file-icon button{
+    background-color: #EFEFEF;
+    border: none;
+    padding: 5px 10px;
+}
+.uploaded-file-icon button:hover{
+    background-color: #EFEFEF;
+}
+.pagination-drop-show button{
+    background-color: #FFF;
+    border-color: #dee2e6;
+    color: #000;
+}
+.pagination-drop-show button:hover,
+.pagination-drop-show button:active,
+.pagination-drop-show button:focus,
+.pagination-drop-show button:focus-visible,
+.pagination-drop-show button:focus-within{
+    background-color: #FFF !important;
+    color: #000 !important;
 }

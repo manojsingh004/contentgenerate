@@ -1,80 +1,123 @@
-import React, { useState, useEffect } from "react";
-import Form from "react-bootstrap/Form";
-import { Row, Col } from 'react-bootstrap';
-import axios from 'axios'; // Assuming you're using axios for API calls
-import { Container, Button } from 'react-bootstrap';
+import React, { useContext,useEffect } from 'react';
+import Form from 'react-bootstrap/Form';
+import { Row, Col, Container, Button } from 'react-bootstrap';
 import DueDiligenceQueries from "./DueDiligenceQueries";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { ChatContext} from './DataContext/ChatContext';
+import { useNavigate } from 'react-router-dom';  // Import useNavigate
+import Cookies from 'js-cookie'; // Import the js-cookie library
+
 
 const NewChatPracticeArea = () => {
-    const [selectedPracticeArea, setSelectedPracticeArea] = useState(0);
-    const [selectedDocumentType, setSelectedDocumentType] = useState(0);
-    const [practiceArea, setPracticeArea] = useState([]);
-    const [documentTypes, setDocumentTypes] = useState([]);
+    const {
+        selectedPracticeArea, setSelectedPracticeArea,
+        selectedDocumentType, setSelectedDocumentType,
+        practiceArea, documentTypes, fetchDocumentTypes,
+        chatId, setChatId,
+        fileName, isUploaded, handleFileChange,
+        questions, fetchQuestion, handleAddQuestion,uploadedFile,setResponseQuestion,
+        newQuestion, setNewQuestion,
+    } = useContext(ChatContext);
     
-    const [fileName, setFileName] = useState("");
-    const [isUploaded, setIsUploaded] = useState(false);
-    const [questions, setQuestions] = useState([]);
-    const [newQuestion, setNewQuestion] = useState("");
+    const navigate = useNavigate(); // Initialize useNavigate
+        useEffect(() => {
+            // Function to call the /createSession route
+            const createSession = async () => {
+                try {
+                    const response = await fetch('https://dev.ciceroai.net/api/createSession', {
+                        method: 'GET',
+                        credentials: 'include', // Include cookies if needed
+                        headers: {
+                            'X-XSRF-TOKEN': Cookies.get('XSRF-TOKEN'), // Set the XSRF token from the cookie
+                        },
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('Session created:', data);
+                        // Do something with the session data if necessary
+                    } else {
+                        console.error('Failed to create session:', response.statusText);
+                    }
+                } catch (error) {
+                    console.error('Error creating session:', error);
+                }
+            };
 
-    // Fetch practice areas once when the component mounts
-    useEffect(() => {
-        const fetchPracticeAreas = async () => {
-            try {
-                const response = await axios.get('https://dev.ciceroai.net/api/area-of-practice');
-                setPracticeArea(response.data); // Assuming the API returns an array of practice areas
-            } catch (error) {
-                console.error("Error fetching practice areas:", error);
-            }
-        };
-
-        fetchPracticeAreas();
-    }, []); // Empty dependency array ensures this runs only once on mount
-
-    const fetchDocumentTypes = async (practiceAreaId) => {
-        try {
-            const response = await axios.get(`https://dev.ciceroai.net/api/document-types/${practiceAreaId}`);
-            setDocumentTypes(response.data); // Assuming the API returns an array of document types
-        } catch (error) {
-            console.error("Error fetching document types:", error);
-        }
-    };
+            // Call the createSession function when the component mounts
+            createSession();
+        }, []); // Empty dependency array ensures it runs once on component mount
 
     const handlePracticeAreaChange = (e) => {
-        e.stopPropagation();
         const selectedAreaId = e.target.value;
-        setSelectedPracticeArea(selectedAreaId); // Update selected practice area
-        fetchDocumentTypes(selectedAreaId); // Fetch document types for the selected practice area
-        setSelectedDocumentType(0); // Reset document type when practice area changes
+        setSelectedPracticeArea(selectedAreaId);
+        fetchDocumentTypes(selectedAreaId);
+        setSelectedDocumentType(0);
     };
-    const fetchQuestion = async (documentId)=>{
+    
+    const handleStartAIAnalysis = async () => {
+        
+        const formData = new FormData();
+        formData.append('id' , chatId);        
+        formData.append('questions', JSON.stringify(questions)); // Append questions array
+        const xsrfToken = Cookies.get('XSRF-TOKEN'); 
         try {
-            const response = await axios.get(`https://dev.ciceroai.net/api/get-question/${documentId}/${selectedPracticeArea}`);
-            setQuestions(current=>response.data); // Assuming the API returns an array of document types
+            // Send data to server
+            const response = await fetch('https://dev.ciceroai.net/api/questions', {
+                method: 'POST',
+                body: formData,
+                credentials: 'include', // Include credentials (cookies)
+                headers: {
+                    'X-XSRF-TOKEN': Cookies.get('XSRF-TOKEN'), // Set the XSRF token from the cookie
+                },
+            });
+           
+            if (response.ok) {
+                const updatedData = await response.json(); // Assume the response is JSON data
+                console.log(updatedData.file_contents.references)
+                setResponseQuestion(updatedData.file_contents.references);// Update context with new questions from server
+                navigate('/chat-route'); // Navigate to chat route
+            } else {
+                navigate('/chat-route'); // Navigate to chat route
+                console.error('Error with server response', response.statusText);
+            }
         } catch (error) {
-            console.error("Error fetching document types:", error);
+            navigate('/chat-route'); // Navigate to chat route
         }
-    }
+    };
     const handleDocumentTypeChange = (e) => {
-        setSelectedDocumentType(current=>e.target.value);
-        fetchQuestion(e.target.value);
-       
+        const selectedDocumentId = e.target.value;
+        setSelectedDocumentType(selectedDocumentId);
+        fetchQuestion(selectedDocumentId);
     };
 
-    const handleFileChange = (event) => {
-        const selectedFile = event.target.files[0];
-        if (selectedFile) {
-            setFileName(selectedFile.name);
-            setIsUploaded(true);
+    const handleFileInput = async(e) => {
+        const formData = new FormData();
+        formData.append('file', e.target.files[0]); // Append file
+        formData.append('id' , chatId);
+        formData.append('area_of_practice_id' , selectedPracticeArea);
+        formData.append('document_type_id' , selectedDocumentType);
+           
+        const xsrfToken = Cookies.get('XSRF-TOKEN'); 
+        try {
+            // Send data to server
+            const response = await fetch('https://dev.ciceroai.net/api/upload-file', {
+                method: 'POST',
+                body: formData,
+                credentials: 'include', // Include credentials (cookies)
+                headers: {
+                    'X-XSRF-TOKEN': Cookies.get('XSRF-TOKEN'), // Set the XSRF token from the cookie
+                },
+            });
+            handleFileChange(e.target.files[0]);
+            if (response.ok) {
+                const updatedData = await response.json(); // Assume the response is JSON data
+               
+               
+            } 
+        } catch (error) {
+           console.log(error)
         }
         
-    };
-
-    const handleAddQuestion = () => {
-        if (newQuestion.trim()) {
-            setQuestions([...questions, newQuestion]);
-            setNewQuestion(""); // Clear input field
-        }
     };
 
     return (
@@ -110,7 +153,7 @@ const NewChatPracticeArea = () => {
                                 <Row className="justify-content-center">
                                     <Col md={6}>
                                         <div className="my-5">
-                                            <h2 className="text-center">Upload Documents</h2>
+                                            {/* <h2 className="text-center">Upload Documents</h2> */}
                                             <div className="d-flex justify-content-center">
                                                 <div className="upload-area" style={{ textAlign: "center" }}>
                                                     <label htmlFor="fileInput">
@@ -122,7 +165,7 @@ const NewChatPracticeArea = () => {
                                                         type="file"
                                                         id="fileInput"
                                                         accept=".doc,.docx,.xls,.xlsx,.pdf"
-                                                        onChange={handleFileChange}
+                                                        onChange={handleFileInput}
                                                         className="position-absolute"
                                                         style={{ opacity: '0' }}
                                                     />
@@ -148,7 +191,7 @@ const NewChatPracticeArea = () => {
                                         <Form.Label>Uploaded Files</Form.Label>
                                     </Form.Group>
                                     <div className="d-flex">
-                                        <Button className="" style={{marginRight:"10px"}}>
+                                        {/* <Button className="" style={{marginRight:"10px"}}>
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M13.5 3H12H7C5.89543 3 5 3.89543 5 5V19C5 20.1046 5.89543 21 7 21H7.5M13.5 3L19 8.625M13.5 3V7.625C13.5 8.17728 13.9477 8.625 14.5 8.625H19M19 8.625V9.75V12V19C19 20.1046 18.1046 21 17 21H16.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
                                                 <path d="M12 21V13M12 13L14.5 15.5M12 13L9.5 15.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
@@ -156,7 +199,7 @@ const NewChatPracticeArea = () => {
                                             <span>
                                                 Upload Document
                                             </span>
-                                        </Button>
+                                        </Button> */}
                                         <Button className="bg-secondary text-white">
                                             <svg width="15" height="18" viewBox="0 0 15 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M4.55556 11.6667L6.33333 13.4444L9.88889 9.88889M8.11111 1H3.84444C2.8488 1 2.35097 1 1.97068 1.19377C1.63617 1.3642 1.3642 1.63617 1.19377 1.97068C1 2.35097 1 2.8488 1 3.84444V14.1556C1 15.1512 1 15.6491 1.19377 16.0293C1.3642 16.3638 1.63617 16.6358 1.97068 16.8062C2.35097 17 2.8488 17 3.84444 17H10.6C11.5956 17 12.0935 17 12.4738 16.8062C12.8083 16.6358 13.0803 16.3638 13.2507 16.0293C13.4444 15.6491 13.4444 15.1512 13.4444 14.1556V6.33333M8.11111 1L13.4444 6.33333M8.11111 1V4.91111C8.11111 5.40893 8.11111 5.65785 8.208 5.84799C8.29324 6.01524 8.42916 6.15123 8.59644 6.23645C8.78658 6.33333 9.03547 6.33333 9.53333 6.33333H13.4444" stroke="#052044" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
@@ -173,7 +216,7 @@ const NewChatPracticeArea = () => {
                                         </Button>
                                     </div>
                                     <Form.Group className="mt-3">
-                                        <Form.Label>Due Diligence Queries</Form.Label>
+                                        <Form.Label>DD Queries</Form.Label>
                                     </Form.Group>
                                     
     
@@ -184,12 +227,12 @@ const NewChatPracticeArea = () => {
                         )
                         
                     )}
-                    <Button className="" style={{marginTop:"20px",backgroundColor:'rgba(75, 87, 211, 1)',width:'100%'}}>
+                    <Button onClick={handleStartAIAnalysis} className="" style={{marginTop:"20px",backgroundColor:'rgba(75, 87, 211, 1)',width:'100%'}}>
                                       
                                       <span>
                                       Start AI Analysis
                                       </span>
-                                  </Button>
+                    </Button>
                 </Col>
             </Row>
         </Col>
