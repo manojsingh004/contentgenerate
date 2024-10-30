@@ -11,12 +11,12 @@ import Dashboard from './Dashboard';
 import NewChatPracticeArea from './NewChatPracticeArea';
 import LegalChatbotGPT from './LegalChatbotGPT';
 import { ChatProvider } from './DataContext/ChatContext';
-import ChatList from './Pages/ChatList';
-
+import ChatPracticeAreaList from './Pages/ChatPracticeAreaList';
+import ChatDocumentTypeList from './Pages/ChatDocumentTypeList';
+import ChatResponse from './Pages/ChatResponse'; 
 
 function App() {
     return (
-        
         <ChatProvider>
             <Router>
                 <div className="App" style={{ backgroundImage: `url(${bg})` }}>
@@ -27,9 +27,12 @@ function App() {
                             <Col md={9}>
                                 <Routes>
                                     <Route path="/" element={<Dashboard />} />
+                                    <Route path="/chatcase" element={<Dashboard />} />
                                     <Route path="/practice-area" element={<NewChatPracticeArea />} />
-                                    <Route path="/chat-route" element={<LegalChatbotGPT />} />
-                                    <Route path="/chat-list" element={<ChatList />} />
+                                    <Route path="/chat-route/:responseId" element={<LegalChatbotGPT />} />
+                                    <Route path="/response/:responseId" element={<ChatResponse />} />
+                                    <Route path="/chat-practice-list/:practiceAreaId" element={<ChatPracticeAreaList />} />
+                                    <Route path="/chat-practice-list/:practiceAreaId/:documentTypeId" element={<ChatDocumentTypeList />} />
                                 </Routes>
                             </Col>
                         </Row>

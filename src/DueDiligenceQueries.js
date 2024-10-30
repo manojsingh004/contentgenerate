@@ -1,87 +1,109 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { ChatContext } from './DataContext/ChatContext'; // Import the context
 import Plus from './Plus'; 
 import Save from './Save'; 
 import Minus from './Minus';
 
 const DueDiligenceQueries = (props) => {
-  const [questions, setQuestions] = useState(props.questions || []);
+  const { questions: contextQuestions, handleSetQuestions } = useContext(ChatContext); // Use context
+  const [questions, setQuestions] = useState(contextQuestions || []);
   const [newQuestion, setNewQuestion] = useState({
     area_of_practice_id: 0,
     document_type_id: 0,
-    id: Math.random().toString(36).slice(2), // Unique ID for each question
+    id: Math.random().toString(36).slice(2),
     questions: "",
-    newQuestion: true, // Indicates a new question
+    newQuestion: true,
   });
 
-  // Update the new question's text based on user input
   const handleNewQuestionChange = (e) => {
-    setNewQuestion({
-      ...newQuestion,
-      questions: e.target.value, // Only update the question field
-    });
+    setNewQuestion((current) => ({
+      ...current,
+      questions: e.target.value,
+    }));
   };
 
-  // Handle adding a new question to the list
   const handleAddQuestion = () => {
     if (newQuestion.questions.trim()) {
-      setQuestions([...questions, newQuestion]); // Add new question to the list
+      const updatedQuestions = [...questions, newQuestion];
+      setQuestions(updatedQuestions); // Update local state
+      handleSetQuestions(updatedQuestions); // Save to context
       setNewQuestion({
-        ...newQuestion, // Retain the same IDs but reset the question field
+        area_of_practice_id: 0,
+        document_type_id: 0,
+        id: Math.random().toString(36).slice(2),
         questions: "",
-        id: Math.random().toString(36).slice(2), // Generate a new unique ID for the next question
+        newQuestion: true,
       });
     }
   };
 
-  // Handle removing a question from the list
   const handleRemoveQuestion = (id) => {
-    setQuestions(questions.filter((question) => question.id !== id));
+    const updatedQuestions = questions.filter((question) => question.id !== id);
+    setQuestions(updatedQuestions); // Update local state
+    handleSetQuestions(updatedQuestions); // Save to context
+  };
+
+  const handleSaveQuestions = async () => {
+    try {
+      const response = await fetch('/api/save-questions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ questions }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save questions');
+      }
+
+      alert('Questions saved successfully!');
+    } catch (error) {
+      console.error('Error saving questions:', error);
+      alert('An error occurred while saving questions.');
+    }
   };
 
   return (
     <div>
       {/* List of Questions */}
       <ul style={{ listStyle: "none", padding: "0" }}>
-        {questions.map((question, index) => {
-          console.log(question);
-          return (
-            <li
-              key={index}
-              style={{
-                width: "100%",
-                height: "46px",
-                border: "1px solid rgba(207, 212, 217, 1)",
-                alignItems: "center",
-                color: "rgba(117, 120, 139, 1)",
-                fontSize: "14px",
-                fontWeight: "400",
-                borderRadius: "4px",
-                display: "flex",
-                padding: "20px 20px",
-                marginBottom: "16px",
-              }}
-            >
-              <div style={{ width: "100%", display: "flex", justifyContent: "space-between" }}>
-                <span>{question.questions}</span>
-                {question.newQuestion !== undefined && (
-                  <span 
-                    style={{ cursor: "pointer", color: "red" }} 
-                    onClick={() => handleRemoveQuestion(question.id)}
-                  >
-                    <Minus />
-                  </span>
-                )}
-              </div>
-            </li>
-          );
-        })}
+        {questions.map((question, index) => (
+          <li
+            key={index}
+            style={{
+              width: "100%",
+              height: "46px",
+              border: "1px solid rgba(207, 212, 217, 1)",
+              alignItems: "center",
+              color: "rgba(117, 120, 139, 1)",
+              fontSize: "14px",
+              fontWeight: "400",
+              borderRadius: "4px",
+              display: "flex",
+              padding: "20px 20px",
+              marginBottom: "16px",
+            }}
+          >
+            <div style={{ width: "100%", display: "flex", justifyContent: "space-between" }}>
+              <span>{question.questions}</span>
+              {question.newQuestion !== undefined && (
+                <span 
+                  style={{ cursor: "pointer", color: "red" }} 
+                  onClick={() => handleRemoveQuestion(question.id)}
+                >
+                  <Minus />
+                </span>
+              )}
+            </div>
+          </li>
+        ))}
       </ul>
 
       {/* Input for New Question */}
       <input
         type="text"
         placeholder="Add a new question"
-        value={newQuestion.questions} // Bind the input to the `questions` field of newQuestion
         style={{
           width: "100%",
           height: "46px",
@@ -95,6 +117,7 @@ const DueDiligenceQueries = (props) => {
           padding: "20px 20px",
           marginBottom: "16px",
         }}
+        value={newQuestion.questions} // Bind the input to the `questions` field of newQuestion
         onChange={handleNewQuestionChange} // Update the question's text
       />
 
@@ -122,7 +145,7 @@ const DueDiligenceQueries = (props) => {
           <span style={{ marginRight: "10px" }}><Plus /></span>
           Add Question
         </div>
-        <div style={{ color: '#3BAE46', cursor: 'pointer' }}>
+        <div style={{ color: '#3BAE46', cursor: 'pointer' }} onClick={handleSaveQuestions}>
           <span style={{ marginRight: "10px" }}><Save /></span>
           Save Custom Questions
         </div>

@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
-import { Col, Button, Accordion, Form } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { Col, Button, Accordion, Form, ListGroupItem,ListGroup } from 'react-bootstrap';
+import { useNavigate, Link } from 'react-router-dom';
 import { ChatContext } from './../DataContext/ChatContext';
 
 const Sidebar = () => {
@@ -32,7 +32,6 @@ const Sidebar = () => {
         try {
             const response = await fetch("https://dev.ciceroai.net/api/create-chat", {
                 method: "GET",
-                
             });
     
             if (!response.ok) {
@@ -56,11 +55,11 @@ const Sidebar = () => {
 
     return (
         <Col md={3} className="sidebar h-100">
-            <div className="d-flex align-items-center mb-4 justify-content-around">
-                <Button variant="primary" className="w-75 NewDdCase" onClick={handleNewDdCaseClick}>
+            <div className="d-flex align-items-center mb-4 justify-content-around px-2 gap-2">
+                <Button variant="primary" className="w-100 NewDdCase" onClick={handleNewDdCaseClick}>
                     + New DD Case
                 </Button>
-                <Button className="search-btn w-20" onClick={toggleSearch}>
+                <Button className="search-btn d-flex align-items-center justify-content-center" onClick={toggleSearch}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#fff" className="bi bi-search" viewBox="0 0 16 16">
                         <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
                     </svg>
@@ -86,11 +85,27 @@ const Sidebar = () => {
                                     <path d="M8.4873 6.53333H8.49331" stroke="#001434" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
                                     <path d="M4.80566 6.53333H4.81165" stroke="#001434" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
                                 </svg>
-                                {item.name}
+                                <Link
+                                        to={`/chat-practice-list/${item.id}/`}
+                                        className='text-decoration-none'
+                                    >
+                                        {item.name}
+                                    </Link>
                             </Accordion.Header>
                             <Accordion.Body>
-                                <p>Sub item 1</p>
-                                <p>Sub item 2</p>
+                            <ListGroup as="ul" className="scrollable">
+                                {item.responses.map(response => (
+                                    <ListGroup.Item as="li" >
+                                    <Link
+                                        to={`/response/${response.id}`}
+                                        key={response.id}
+                                        className='text-decoration-none'
+                                    >
+                                        {response.title}
+                                    </Link>
+                                    </ListGroup.Item>                                  
+                                ))}
+                                </ListGroup>
                             </Accordion.Body>
                         </Accordion.Item>
                     ))}

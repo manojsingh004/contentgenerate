@@ -8,6 +8,10 @@ export const ChatContext = createContext();
 export const ChatProvider = ({ children }) => {
     const [selectedPracticeArea, setSelectedPracticeArea] = useState(0);
     const [selectedDocumentType, setSelectedDocumentType] = useState(0);
+    
+    const [selectedPracticeAreaName, setSelectedPracticeAreaName] = useState('');
+    const [selectedDocumentTypeName, setSelectedDocumentTypeName] = useState('');
+
     const [practiceArea, setPracticeArea] = useState([]);
     const [documentTypes, setDocumentTypes] = useState([]);
     const [fileName, setFileName] = useState("");
@@ -36,6 +40,7 @@ export const ChatProvider = ({ children }) => {
         try {
             const response = await axios.get(`https://dev.ciceroai.net/api/document-types/${practiceAreaId}`);
             setDocumentTypes(response.data);
+            console.log('datadoc',response.data)
         } catch (error) {
             console.error("Error fetching document types:", error);
         }
@@ -58,7 +63,10 @@ export const ChatProvider = ({ children }) => {
             setIsUploaded(true);
         }
     };
-
+    //handle question
+    const handleSetQuestions = (newQuestions) => {
+        setQuestions(newQuestions);
+    };
     const handleAddQuestion = () => {
         if (newQuestion.trim()) {
             setQuestions([...questions, newQuestion]);
@@ -83,7 +91,9 @@ export const ChatProvider = ({ children }) => {
             setQuestions,
             handleFileChange,
             chatId, setChatId,setResponseQuestion,responseQuestion,
-            questions,setUploadedFile,
+            selectedPracticeAreaName,setSelectedPracticeAreaName,
+            selectedDocumentTypeName,setSelectedDocumentTypeName,
+            questions,setUploadedFile, handleSetQuestions,
             fetchQuestion,
             handleAddQuestion,
             newQuestion,
