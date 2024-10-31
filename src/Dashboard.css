@@ -15,14 +15,17 @@ body{
 .fs24{
     font-size: 24px;
 }
+.fs20{
+    font-size: 20px;
+}
 .fs18{
     font-size: 18px;
 }
-.fs14{
-    font-size: 14px;
-}
 .fs15{
     font-size: 15px;
+}
+.fs14{
+    font-size: 14px;
 }
 .dashboard {
     /* min-height: 100vh; */
