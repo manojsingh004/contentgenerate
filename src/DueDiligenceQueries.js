@@ -25,7 +25,7 @@ const DueDiligenceQueries = (props) => {
   const handleAddQuestion = () => {
     if (newQuestion.questions.trim()) {
       const updatedQuestions = [...questions, newQuestion];
-      setQuestions(updatedQuestions); // Update local state
+      setQuestions(current=>updatedQuestions); // Update local state
       handleSetQuestions(updatedQuestions); // Save to context
       setNewQuestion({
         area_of_practice_id: 0,
@@ -43,25 +43,39 @@ const DueDiligenceQueries = (props) => {
     handleSetQuestions(updatedQuestions); // Save to context
   };
 
-  const handleSaveQuestions = async () => {
-    try {
-      const response = await fetch('/api/save-questions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ questions }),
+  const handleSaveQuestions =  () => {
+    // try {
+    //   const response = await fetch('/api/save-questions', {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify({ questions }),
+    //   });
+
+    //   if (!response.ok) {
+    //     throw new Error('Failed to save questions');
+    //   }
+
+    //   //alert('Questions saved successfully!');
+    // } catch (error) {
+    //   console.error('Error saving questions:', error);
+    //  // alert('An error occurred while saving questions.');
+    // }
+    if (newQuestion.questions.trim()) {
+      const updatedQuestions = [...questions, newQuestion];
+      setQuestions(current=>updatedQuestions); // Update local state
+      handleSetQuestions(updatedQuestions); // Save to context
+      setNewQuestion({
+        area_of_practice_id: 0,
+        document_type_id: 0,
+        id: Math.random().toString(36).slice(2),
+        questions: "",
+        newQuestion: true,
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to save questions');
-      }
-
-      alert('Questions saved successfully!');
-    } catch (error) {
-      console.error('Error saving questions:', error);
-      alert('An error occurred while saving questions.');
+      
     }
+    console.log(questions)
   };
 
   return (
