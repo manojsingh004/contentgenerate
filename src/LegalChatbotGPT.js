@@ -169,29 +169,32 @@ const LegalChatbotGPT = () => {
                                     {responseQuestion.summary}
                                 </p>
                             </div>
+                            <div className="ai-analysis mt-4 pt-4 border-top border-2">
+                                <h3 className="fs20">References</h3>
+                                {/* AI Analysis Section */}
+                                <div className="ai-analysis mt-4">
+                                    {responseQuestion.references.map((q, key) => {
+                                        console.log(key)
+                                        return (
+                                            <>
+                                                <h5 className="fs18">{parseInt(key)+1}. {q.reference_title}</h5>
+                                                <p>
+                                                    {q.reference_content}
+                                                </p>
+                                            </>
+
+                                        )
+                                    })}
+
+                                </div>
+                            </div>
                             </div>
                             {/* Print Button */}
                         </Row>
                     </Col>
                     <Col md={4} className="right-content">
                         <Row className="RightPanelSide bg-white rounded-25 shadow-sm">
-                            <h3>References</h3>
-                            {/* AI Analysis Section */}
-                            <div className="ai-analysis mt-4">
-                                {responseQuestion.references.map((q, key) => {
-                                    console.log(key)
-                                    return (
-                                        <>
-                                            <h5>{parseInt(key)+1}. {q.reference_title}</h5>
-                                            <p>
-                                                {q.reference_content}
-                                            </p>
-                                        </>
-
-                                    )
-                                })}
-
-                            </div>
+                            
                         </Row>
                     </Col>
                 </Row>

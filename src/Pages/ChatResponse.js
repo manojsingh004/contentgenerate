@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Form from 'react-bootstrap/Form';
 import { Row, Col, Container, Button } from 'react-bootstrap';
 import DueDiligenceQueries from "./../DueDiligenceQueries";
@@ -6,6 +6,7 @@ import { ChatContext } from './../DataContext/ChatContext';
 import { useNavigate } from 'react-router-dom';  // Import useNavigate
 import Cookies from 'js-cookie'; // Import the js-cookie library
 import { useParams } from 'react-router-dom';
+import ScaleLoader from 'react-spinners/ScaleLoader';
 
 
 const ChatResponse = () => {
@@ -25,11 +26,14 @@ const ChatResponse = () => {
     const { responseId } = useParams();
 
     const navigate = useNavigate(); // Initialize useNavigate
+    // Loading state
+    const [loading, setLoading] = useState(false);
+
     useEffect(() => {
         // Function to call the /createSession route
 
         const createSession = async () => {
-
+            setLoading(true);
 
             try {
                 const response = await fetch(`https://dev.ciceroai.net/api/response/${responseId}`, {
@@ -65,6 +69,8 @@ const ChatResponse = () => {
                 }
             } catch (error) {
                 console.error('Error creating session:', error);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -80,6 +86,7 @@ const ChatResponse = () => {
     };
 
     const handleStartAIAnalysis = async () => {
+        setLoading(true); // Show loader
 
         const formData = new FormData();
         formData.append('id', chatId);
@@ -107,6 +114,8 @@ const ChatResponse = () => {
             }
         } catch (error) {
             navigate('/chat-route'); // Navigate to chat route
+        } finally {
+            setLoading(false); // Hide loader after completion
         }
     };
     const handleDocumentTypeChange = (e) => {
@@ -253,12 +262,15 @@ const ChatResponse = () => {
                         )
 
                     )}
-                    <Button onClick={handleStartAIAnalysis} className="" style={{ marginTop: "20px", backgroundColor: 'rgba(75, 87, 211, 1)', width: '100%' }}>
-
-                        <span>
-                            Start AI Analysis
-                        </span>
-                    </Button>
+                    <span className='d-flex align-items-center justify-content-center'>
+                        {loading ? (
+                            <ScaleLoader color="#333333" /> // Show loader only if loading is true
+                        ) : (
+                            <Button onClick={handleStartAIAnalysis} style={{ marginTop: "20px", backgroundColor: 'rgba(75, 87, 211, 1)', width: '100%' }}>
+                                <span>Start AI Analysis</span>
+                            </Button>
+                        )}
+                    </span>
                 </Col>
             </Row>
         </Col>

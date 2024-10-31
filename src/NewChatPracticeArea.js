@@ -1,10 +1,12 @@
-import React, { useContext,useEffect } from 'react';
+/* eslint-disable react/jsx-no-undef */
+import React, { useContext,useEffect, useState } from 'react';
 import Form from 'react-bootstrap/Form';
 import { Row, Col, Container, Button } from 'react-bootstrap';
 import DueDiligenceQueries from "./DueDiligenceQueries";
 import { ChatContext} from './DataContext/ChatContext';
 import { useNavigate } from 'react-router-dom';  // Import useNavigate
 import Cookies from 'js-cookie'; // Import the js-cookie library
+import ScaleLoader from 'react-spinners/ScaleLoader';
 
 
 const NewChatPracticeArea = () => {
@@ -20,6 +22,7 @@ const NewChatPracticeArea = () => {
         newQuestion, setNewQuestion,
     } = useContext(ChatContext);
     
+    const [loading, setLoading] = useState(false); // Add loading state
     const navigate = useNavigate(); // Initialize useNavigate
         useEffect(() => {
             // Function to call the /createSession route
@@ -60,7 +63,7 @@ const NewChatPracticeArea = () => {
     };
     
     const handleStartAIAnalysis = async () => {
-        
+        setLoading(true); // Show loader
         const formData = new FormData();
         formData.append('id' , chatId);        
         formData.append('questions', JSON.stringify(questions)); // Append questions array
@@ -239,12 +242,15 @@ const NewChatPracticeArea = () => {
                         )
                         
                     )}
-                    <Button onClick={handleStartAIAnalysis} className="" style={{marginTop:"20px",backgroundColor:'rgba(75, 87, 211, 1)',width:'100%'}}>
-                                      
-                                      <span>
-                                      Start AI Analysis
-                                      </span>
-                    </Button>
+                    <span className='d-flex align-items-center justify-content-center'>
+                        {loading ? (
+                            <ScaleLoader color="#333333" /> // Show loader only if loading is true
+                        ) : (
+                            <Button onClick={handleStartAIAnalysis} style={{ marginTop: "20px", backgroundColor: 'rgba(75, 87, 211, 1)', width: '100%' }}>
+                                <span>Start AI Analysis</span>
+                            </Button>
+                        )}
+                    </span>
                 </Col>
             </Row>
         </Col>
