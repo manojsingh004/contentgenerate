@@ -1,12 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { Row, Col, Card} from 'react-bootstrap';
+import Cookies from 'js-cookie'; // Import the js-cookie library
 
 const Dashboard = () => {
     const [isSearchOpen, setIsSearchOpen] = useState(false);
-
+    const [conveyancing, setConveyancing] = useState(false);
     const toggleSearch = () => {
         setIsSearchOpen(!isSearchOpen);
     };
+    useEffect(() => {
+        // Function to call the /createSession route
+        const createSession = async () => {
+            try {
+                const response = await fetch('https://dev.ciceroai.net/api/conveyancing', {
+                    method: 'GET',
+                    credentials: 'include', // Include cookies if needed
+                    headers: {
+                        'X-XSRF-TOKEN': Cookies.get('XSRF-TOKEN'), // Set the XSRF token from the cookie
+                    },
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    setConveyancing(data);
+                    // Do something with the session data if necessary
+                } else {
+                    console.error('Failed to create session:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error creating session:', error);
+            }
+        };
+
+        // Call the createSession function when the component mounts
+        createSession();
+    }, []); // Empty dependency array ensures it runs once on component mount
+
 
     return (
         
@@ -18,9 +47,10 @@ const Dashboard = () => {
                                 <Card.Body>
                                     <Card.Title>Conveyancing</Card.Title>
                                     <Card.Text>
-                                        <h2>25</h2>
+                                        <h2>{conveyancing}</h2>
                                     </Card.Text>
-                                    <Card.Link href="#">View more &rarr;</Card.Link>
+                                    
+                                    <Card.Link href="/chat-practice-list/5/">View more &rarr;</Card.Link>
                                 </Card.Body>
                             </Card>
                         </Col>

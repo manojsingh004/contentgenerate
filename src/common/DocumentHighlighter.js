@@ -1,12 +1,16 @@
 import { useState } from 'react';
-import { PdfLoader, PdfHighlighter, Tip, AreaHighlight } from 'react-pdf-highlighter';
+import { PdfLoader, PdfHighlighter, Tip } from 'react-pdf-highlighter';
+import { pdfjs } from 'react-pdf';
+
+// Set the worker path for pdfjs
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 const DocumentHighlighter = ({ document }) => {
   const [highlights, setHighlights] = useState([]);
   const searchString = "your search term"; // Replace this with the actual term
 
   // Function to search and highlight all matching terms
-  const searchAndHighlight = (textContent) => {
+  const searchAndHighlight = (textContent, pageNumber) => {
     const matches = [];
     let startIndex = 0;
 
@@ -15,49 +19,64 @@ const DocumentHighlighter = ({ document }) => {
       startIndex = textContent.indexOf(searchString, startIndex);
       if (startIndex !== -1) {
         const endIndex = startIndex + searchString.length;
-        
-        // Add each match as a highlight object
+
+        // Here you would need to calculate the bounding rects based on the match's position
         matches.push({
           id: Math.random().toString(36).substr(2, 9),
           position: {
-            boundingRect: {}, // Populate this based on match coordinates
-            rects: [], // Populate based on match position
-            pageNumber:'' /* Calculate the page number here */
+            boundingRect: { top: 0, left: 0, width: 50, height: 20 }, // Dummy values, replace with actual
+            rects: [{ top: 0, left: 0, width: 50, height: 20 }], // Dummy values, replace with actual
+            pageNumber: pageNumber,
           },
-          content: { text: searchString }
+          content: { text: searchString },
         });
         startIndex = endIndex;
       }
     }
-    setHighlights(matches);
-  };
-
-  // Call searchAndHighlight when the document is loaded
-  const handleDocumentLoad = (doc) => {
-    const fullText = doc.getText(); // Modify if method differs
-    searchAndHighlight(fullText);
+    setHighlights(prevHighlights => [...prevHighlights, ...matches]);
   };
 
   return (
     <PdfLoader
-      url={'https://dev.ciceroai.net/user-content/'+document}
-      // any other PdfLoader props
+      url={`https://dev.ciceroai.net/user-content/${document}`}
+      beforeLoad={<div>Loading document...</div>}
     >
-      
+      {({ pdfDocument }) => (
         <PdfHighlighter
-          // pdfDocument={pdfDocument}
+          pdfDocument={pdfDocument}
+          highlights={highlights}
           onHighlightChange={highlight => {
             // Handle highlight changes
+            console.log(highlight);
+          }}
+          onScrollChange={pageNumber => {
+            // When the user scrolls to a new page, you might want to update highlights
+          }}
+          onDocumentLoadSuccess={async (doc) => {
+            const pdf = await pdfjs.getDocument({ url: doc.url }).promise;
+            const numPages = pdf.numPages;
+
+            // Loop through pages to get full text content
+            const pagePromises = [];
+            for (let i = 1; i <= numPages; i++) {
+              pagePromises.push(pdf.getPage(i).then(async (page) => {
+                const content = await page.getTextContent();
+                const textItems = content.items.map(item => item.str).join(' ');
+                searchAndHighlight(textItems, i);
+              }));
+            }
+
+            // Wait for all pages to be processed
+            await Promise.all(pagePromises);
           }}
         >
-          {/* Optional custom tip component */}
           <Tip>
-            {/* Custom tip rendering */}
+            {/* Custom tip rendering can be done here */}
+            Highlighted
           </Tip>
         </PdfHighlighter>
-      
+      )}
     </PdfLoader>
-    
   );
 };
 
