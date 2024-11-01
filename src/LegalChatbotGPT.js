@@ -20,6 +20,8 @@ const LegalChatbotGPT = () => {
         selectedPracticeAreaName,setSelectedPracticeAreaName,
         selectedDocumentTypeName,setSelectedDocumentTypeName,
         newQuestion,
+        titleDoc,
+        setTitleDoc,
         setNewQuestion,
         handleCommentChange
     } = useContext(ChatContext);
@@ -43,7 +45,7 @@ const LegalChatbotGPT = () => {
             <Container fluid>
                 <Row>
                     <Col className="mx-3 pt-2" >
-                        <h3 className="fs24 ps-4">{selectedPracticeAreaName}</h3>
+                        <h3 className="fs24 ps-4">{titleDoc}</h3>
                     </Col>
                 </Row>
             </Container>
