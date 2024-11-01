@@ -154,7 +154,7 @@ const ChatPracticeAreaList = () => {
                               strokeLinejoin="round"
                             />
                           </svg>
-                          <span className="midnight-blue fs14">{doc.filename}</span>
+                          <span className="midnight-blue fs14">{doc.original_file_name}</span>
                         </Button>
                       </span>
                   
