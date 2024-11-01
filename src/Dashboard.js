@@ -59,7 +59,7 @@ const Dashboard = () => {
                                 <Card.Body>
                                     <Card.Title>Corporate Law</Card.Title>
                                     <Card.Text>
-                                        <h2>5</h2>
+                                        <h2>0</h2>
                                     </Card.Text>
                                     <Card.Link href="#">View more &rarr;</Card.Link>
                                 </Card.Body>
@@ -70,7 +70,7 @@ const Dashboard = () => {
                                 <Card.Body>
                                     <Card.Title>Employment Law</Card.Title>
                                     <Card.Text>
-                                        <h2>12</h2>
+                                        <h2>0</h2>
                                     </Card.Text>
                                     <Card.Link href="#">View more &rarr;</Card.Link>
                                 </Card.Body>
@@ -81,7 +81,7 @@ const Dashboard = () => {
                                 <Card.Body>
                                     <Card.Title>Intellectual Property</Card.Title>
                                     <Card.Text>
-                                        <h2>20</h2>
+                                        <h2>0</h2>
                                     </Card.Text>
                                     <Card.Link href="#">View more &rarr;</Card.Link>
                                 </Card.Body>
