@@ -12,6 +12,8 @@ export const ChatProvider = ({ children }) => {
     const [selectedPracticeAreaName, setSelectedPracticeAreaName] = useState('');
     const [selectedDocumentTypeName, setSelectedDocumentTypeName] = useState('');
 
+    const [titleDoc, setTitleDoc] = useState('');
+
     const [practiceArea, setPracticeArea] = useState([]);
     const [documentTypes, setDocumentTypes] = useState([]);
     const [fileName, setFileName] = useState("");
@@ -91,6 +93,7 @@ export const ChatProvider = ({ children }) => {
             isUploaded,
             setIsUploaded,
             setQuestions,
+            titleDoc, setTitleDoc,
             handleFileChange,
             chatId, setChatId,setResponseQuestion,responseQuestion,
             selectedPracticeAreaName,setSelectedPracticeAreaName,

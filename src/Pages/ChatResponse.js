@@ -17,6 +17,7 @@ const ChatResponse = () => {
         selectedPracticeAreaName, setSelectedPracticeAreaName,
         selectedDocumentTypeName, setSelectedDocumentTypeName,
         setPracticeArea,
+        titleDoc, setTitleDoc,
         setFilePath,
         setQuestions,
         chatId, setChatId,
@@ -63,6 +64,7 @@ const ChatResponse = () => {
                 setSelectedPracticeAreaName(name ? name.name : ''); // Guard against null
                 setIsUploaded(true);
                 setChatId(data.id);
+                setTitleDoc(data.title);
                 setFileName(current=>data.original_file_name);
                  setFilePath(current=>data.filepath);
                 } else {
@@ -155,7 +157,7 @@ const ChatResponse = () => {
 
     return (
         <Col md={12} className="right-content">
-            <h3>{selectedPracticeAreaName}</h3>
+            <h3>{titleDoc}</h3>
             <Row className="RightPanelSide bg-white p-4 m-4 rounded-25 shadow-sm">
                 <Col md={12} lg={12} className="mb-4 mt-4">
                     <Form.Group className="mb-3">
