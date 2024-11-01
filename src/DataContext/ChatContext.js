@@ -15,6 +15,7 @@ export const ChatProvider = ({ children }) => {
     const [practiceArea, setPracticeArea] = useState([]);
     const [documentTypes, setDocumentTypes] = useState([]);
     const [fileName, setFileName] = useState("");
+    const [filePath, setFilePath] = useState("");
     const [uploadedFile, setUploadedFile] = useState(null); // New state to store the uploaded file
     const [isUploaded, setIsUploaded] = useState(false);
     const [questions, setQuestions] = useState([]);
@@ -98,7 +99,7 @@ export const ChatProvider = ({ children }) => {
             fetchQuestion,
             handleAddQuestion,
             newQuestion,
-            setNewQuestion
+            setNewQuestion,filePath, setFilePath
         }}>
             {children}
         </ChatContext.Provider>

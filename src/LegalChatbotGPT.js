@@ -6,11 +6,13 @@ import { Link, useParams } from 'react-router-dom';
 
 import { useReactToPrint } from "react-to-print";
 import PrintableComponent from "./Document/PrintableComponent";
+import DocumentHighlighter from "./common/DocumentHighlighter";
 const LegalChatbotGPT = () => {
     // Access context values and functions
     const {
         fileName,
         isUploaded,
+        filePath,
         handleFileChange,
         questions,
         handleAddQuestion,
@@ -194,7 +196,7 @@ const LegalChatbotGPT = () => {
                     </Col>
                     <Col md={5} className="right-content">
                         <Row className="RightPanelSide bg-white rounded-25 shadow-sm">
-                            
+                            <DocumentHighlighter document={filePath} />
                         </Row>
                     </Col>
                 </Row>

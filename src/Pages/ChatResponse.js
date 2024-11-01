@@ -17,6 +17,7 @@ const ChatResponse = () => {
         selectedPracticeAreaName, setSelectedPracticeAreaName,
         selectedDocumentTypeName, setSelectedDocumentTypeName,
         setPracticeArea,
+        setFilePath,
         setQuestions,
         chatId, setChatId,
         fileName, isUploaded, setIsUploaded, handleFileChange,
@@ -63,7 +64,7 @@ const ChatResponse = () => {
                 setIsUploaded(true);
                 setChatId(data.id);
                 setFileName(current=>data.original_file_name);
-
+                 setFilePath(current=>data.filepath);
                 } else {
                     console.error('Failed to create session:', response.statusText);
                 }

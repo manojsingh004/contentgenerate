@@ -88,7 +88,7 @@ const ChatDocumentTypeList = () => {
                     </div>
                    
                       <span className="position-relative">
-                      <b className="position-absolute bell-count">{'1'}</b>
+                      <b className="position-absolute bell-count">{'0'}</b>
                       <svg width="20" height="20" viewBox="0 0 27 27" fill="none" xmlns="http://www.w3.org/2000/svg">
                               <path d="M11.2741 5.91667C11.2741 4.72005 12.2442 3.75 13.4408 3.75C14.6374 3.75 15.6075 4.72005 15.6075 5.91667C18.1426 7.11543 19.8093 9.61543 19.9408 12.4167V15.6667C20.1061 17.0325 20.9102 18.2387 22.1075 18.9167H4.77412C5.97133 18.2387 6.77546 17.0325 6.94079 15.6667V12.4167C7.07227 9.61543 8.73894 7.11543 11.2741 5.91667" stroke="#4B465C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                               <path d="M11.2741 5.91667C11.2741 4.72005 12.2442 3.75 13.4408 3.75C14.6374 3.75 15.6075 4.72005 15.6075 5.91667C18.1426 7.11543 19.8093 9.61543 19.9408 12.4167V15.6667C20.1061 17.0325 20.9102 18.2387 22.1075 18.9167H4.77412C5.97133 18.2387 6.77546 17.0325 6.94079 15.6667V12.4167C7.07227 9.61543 8.73894 7.11543 11.2741 5.91667" stroke="white" stroke-opacity="0.2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>

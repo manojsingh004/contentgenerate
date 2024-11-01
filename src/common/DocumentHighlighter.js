@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PDFViewer, Highlight } from 'react-pdf-highlighter';
+import { PdfLoader, PdfHighlighter, Tip, AreaHighlight } from 'react-pdf-highlighter';
 
 const DocumentHighlighter = ({ document }) => {
   const [highlights, setHighlights] = useState([]);
@@ -39,18 +39,25 @@ const DocumentHighlighter = ({ document }) => {
   };
 
   return (
-    <PDFViewer
-      pdfDocument={document}
-      highlights={highlights}
-      onDocumentLoad={handleDocumentLoad}
-      highlightTransform={(highlight, index) => (
-        <Highlight
-          key={index}
-          position={highlight.position}
-          content={highlight.content}
-        />
-      )}
-    />
+    <PdfLoader
+      url={'https://dev.ciceroai.net/user-content/'+document}
+      // any other PdfLoader props
+    >
+      
+        <PdfHighlighter
+          // pdfDocument={pdfDocument}
+          onHighlightChange={highlight => {
+            // Handle highlight changes
+          }}
+        >
+          {/* Optional custom tip component */}
+          <Tip>
+            {/* Custom tip rendering */}
+          </Tip>
+        </PdfHighlighter>
+      
+    </PdfLoader>
+    
   );
 };
 
