@@ -2,12 +2,13 @@ import React, { useContext, useState } from 'react';
 import { Col, Button, Accordion, Form, ListGroupItem,ListGroup } from 'react-bootstrap';
 import { useNavigate, Link } from 'react-router-dom';
 import { ChatContext } from './../DataContext/ChatContext';
+import Cookies from 'js-cookie'; // Import the js-cookie library
 
 const Sidebar = () => {
     const { practiceArea,
         setSelectedDocumentType,
         setSelectedPracticeArea,
-        setFileName,
+        setFileName,setPracticeArea,
         setUploadedFile,
         chatId, setChatId,
         setIsUploaded,
@@ -15,10 +16,40 @@ const Sidebar = () => {
         setNewQuestion,
     } = useContext(ChatContext);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
     const navigate = useNavigate();
 
     const toggleSearch = () => {
         setIsSearchOpen(!isSearchOpen);
+    };
+
+    const handleSearchChange = (e) => {
+        setSearchQuery(e.target.value);
+    };
+
+    const handleSearch = async () => {
+        try {
+            const response = await fetch("https://dev.ciceroai.net/api/search", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    'X-XSRF-TOKEN': Cookies.get('XSRF-TOKEN')
+                },
+               
+                body: JSON.stringify({ title: searchQuery })
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch search results");
+            }
+
+            const data = await response.json();
+            setPracticeArea(data);
+            console.log(data);
+        } catch (error) {
+            console.error("Error searching:", error);
+        }
     };
 
     const handleNewDdCaseClick = async() => {
@@ -54,7 +85,7 @@ const Sidebar = () => {
     };
 
     return (
-        <Col md={3} className="sidebar h-100">
+        <Col md={2} className="sidebar h-100">
             <div className="d-flex align-items-center mb-4 justify-content-around px-2 gap-2">
                 <Button variant="primary" className="w-100 NewDdCase" onClick={handleNewDdCaseClick}>
                     + New DD Case
@@ -68,8 +99,9 @@ const Sidebar = () => {
 
             <div className="search-container">
                 {isSearchOpen && (
-                    <Form className="search-form">
-                        <Form.Control type="text" placeholder="Search..." />
+                    <Form className="search-form"  onSubmit={(e) => { e.preventDefault(); handleSearch(); }}>
+                        <Form.Control type="text" placeholder="Search..."  value={searchQuery}
+                            onChange={handleSearchChange}/>
                     </Form>
                 )}
             </div>

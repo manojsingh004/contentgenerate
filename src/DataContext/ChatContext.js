@@ -79,6 +79,7 @@ export const ChatProvider = ({ children }) => {
             selectedPracticeArea,
             setSelectedPracticeArea,
             selectedDocumentType,
+            setPracticeArea,
             setSelectedDocumentType,
             practiceArea,
             setFileName,

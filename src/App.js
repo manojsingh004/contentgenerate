@@ -24,7 +24,7 @@ function App() {
                     <Container fluid className="dashboard">
                         <Row className="dashboard-container">
                             <Sidebar />
-                            <Col md={9}>
+                            <Col md={10}>
                                 <Routes>
                                     <Route path="/" element={<Dashboard />} />
                                     <Route path="/chatcase" element={<Dashboard />} />

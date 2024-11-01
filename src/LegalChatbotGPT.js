@@ -47,7 +47,7 @@ const LegalChatbotGPT = () => {
             </Container>
             <Container fluid>
                 <Row>
-                    <Col md={8} className="right-content">
+                    <Col md={7} className="right-content">
                         <Row className="RightPanelSide bg-white mx-2 rounded-25 shadow-sm">
                             {/* Main Content */}
                             <div className="d-flex align-items-center justify-content-between gap-2">
@@ -192,7 +192,7 @@ const LegalChatbotGPT = () => {
                             {/* Print Button */}
                         </Row>
                     </Col>
-                    <Col md={4} className="right-content">
+                    <Col md={5} className="right-content">
                         <Row className="RightPanelSide bg-white rounded-25 shadow-sm">
                             
                         </Row>

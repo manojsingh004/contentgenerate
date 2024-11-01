@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Table, FormControl, Button, Dropdown, DropdownButton } from 'react-bootstrap';
+import { Table, FormControl, Button, Dropdown, Form, DropdownButton } from 'react-bootstrap';
 import { FaBell, FaEdit, FaTrash } from 'react-icons/fa';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { useNavigate, Link } from 'react-router-dom';
+import Cookies from 'js-cookie'; // Import the js-cookie library
 
 const ChatPracticeAreaList = () => {
   const { practiceAreaId } = useParams();
@@ -12,6 +13,8 @@ const ChatPracticeAreaList = () => {
   const [currentPage, setCurrentPage] = useState(1); // State for current page
   const [documents, setDocuments] = useState([]); // State to store documents
   const [loading, setLoading] = useState(true); // State to track loading
+  const [searchQuery, setSearchQuery] = useState('');
+
   const navigate = useNavigate();
   useEffect(() => {
     const fetchDocuments = async () => {
@@ -37,9 +40,32 @@ const ChatPracticeAreaList = () => {
     }
   };
   const handleSearch = (event) => {
-    setSearch(event.target.value);
+    setSearchQuery(event.target.value);
     setCurrentPage(1); // Reset to first page on new search
   };
+  const handleSearchChange = async() => {
+    try {
+      const response = await fetch("https://dev.ciceroai.net/api/searchDoc", {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json",
+              'X-XSRF-TOKEN': Cookies.get('XSRF-TOKEN')
+          },
+         
+          body: JSON.stringify({ title: searchQuery,id:practiceAreaId })
+      });
+
+      if (!response.ok) {
+          throw new Error("Failed to fetch search results");
+      }
+
+      const data = await response.json();
+     setDocuments(data);
+      console.log(data);
+  } catch (error) {
+      console.error("Error searching:", error);
+  }
+};
 
   const handleItemsPerPageChange = (value) => {
     setItemsPerPage(value);
@@ -66,13 +92,15 @@ const ChatPracticeAreaList = () => {
       <div className="d-flex align-items-center mb-4">
         <h3 className='flex-grow-1 pe-3 m-0'>Conveyancing</h3>
         <div className='flex-grow-1'>
+        <Form className="search-form"  onSubmit={(e) => { e.preventDefault(); handleSearchChange(); }}>
           <FormControl
             type="text"
             placeholder="Search..."
-            value={search}
+            value={searchQuery}
             onChange={handleSearch}
             className="w-75 searchBox public-sans fs15"
           />
+          </Form>
         </div>
       </div>
       <div className="case-list pb-3 mb-4">
