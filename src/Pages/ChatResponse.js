@@ -93,7 +93,11 @@ const ChatResponse = () => {
     const handleTitleChange = (e) => {
         setEditedTitle(e.target.value);
     };
+    const handleSaveTitleOpen = () => {
+        setTitleDoc(editedTitle); // Update the context with the new title
+        setIsEditing(false); // Exit editing mode
 
+    }
     const handleSaveTitle = async() => {
         setTitleDoc(editedTitle); // Update the context with the new title
         setIsEditing(false); // Exit editing mode
@@ -113,14 +117,14 @@ const ChatResponse = () => {
                 const updatedData = await response.json(); // Assume the response is JSON data
                 console.log(updatedData.file_contents.data.id,updatedData.file_contents.references);
                 setTitleDoc(current=>updatedData.title)
-                setResponseQuestion(updatedData.file_contents.references);// Update context with new questions from server
-                navigate(`/chat-route/${updatedData.file_contents.data.id}`); // Navigate to chat route
+              //  setResponseQuestion(updatedData.file_contents.references);// Update context with new questions from server
+               // navigate(`/chat-route/${updatedData.file_contents.data.id}`); // Navigate to chat route
             } else {
-                navigate('/chat-route'); // Navigate to chat route
+              //  navigate('/chat-route'); // Navigate to chat route
                 console.error('Error with server response', response.statusText);
             }
         } catch (error) {
-            navigate('/chat-route'); // Navigate to chat route
+           // navigate('/chat-route'); // Navigate to chat route
         } finally {
             setLoading(false); // Hide loader after completion
         }
@@ -219,7 +223,7 @@ const ChatResponse = () => {
                         </Form.Group>
                     ) : (
                         <h3 onClick={handleEditTitle}>{titleDoc}
-                        <Button variant="link" onClick={handleSaveTitle}>
+                        <Button variant="link" onClick={handleSaveTitleOpen}>
                                 <FaEdit /> {/* Edit icon */}
                             </Button>
                         </h3>

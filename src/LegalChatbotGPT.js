@@ -55,7 +55,7 @@ const LegalChatbotGPT = () => {
                         <Row className="RightPanelSide bg-white mx-2 rounded-25 shadow-sm">
                             {/* Main Content */}
                             <div className="d-flex align-items-center justify-content-between gap-2">
-                                <h3 className="doctype-heading charcoal-blue">{selectedDocumentTypeName}</h3>
+                                <h3 className="doctype-heading charcoal-blue">{selectedPracticeAreaName}</h3>
                                 <div className="d-flex align-items-center justify-content-end case-download-options">
                                     <button onClick={handlePrint} className="bg-transparent border-0">
                                     <svg width="18" height="25" viewBox="0 0 18 25" fill="none" xmlns="http://www.w3.org/2000/svg">
