@@ -362,3 +362,6 @@ body{
     color: #75788B;
     font-size: 14px;
 }
+.text-edit-box{
+    max-width: 50%;
+}
