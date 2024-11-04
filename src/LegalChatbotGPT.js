@@ -40,6 +40,59 @@ const LegalChatbotGPT = () => {
     });
 
     console.log(responseQuestion);
+    // Rajiv Code Start
+    useEffect(() => {
+        // Function to call the /createSession route
+
+        const createSession = async () => {
+            setLoading(true);
+
+            try {
+                const response = await fetch(`https://dev.ciceroai.net/api/response/${responseId}`, {
+                    method: 'GET',
+                    credentials: 'include', // Include cookies if needed
+                    headers: {
+                        'X-XSRF-TOKEN': Cookies.get('XSRF-TOKEN'), // Set the XSRF token from the cookie
+                    },
+                });
+
+                if (response.ok) {
+                 const data = await response.json();
+
+                // Await the fetchDocumentTypes directly
+                await fetchDocumentTypes(data.area_of_practice_id);
+                    console.log(documentTypes);
+                // Now documentTypes should be updated after fetchDocumentTypes completes
+                const name = documentTypes.find(area => parseInt(area.id) === parseInt(data.document_type_id));
+
+                console.log(name, documentTypes); // Should reflect the latest state now
+
+                // Set the other state values
+                setSelectedPracticeArea(data.area_of_practice_id);
+                setSelectedDocumentType(parseInt(data.document_type_id));
+                setQuestions(JSON.parse(data.questions));
+                setSelectedPracticeAreaName(name ? name.name : ''); // Guard against null
+                setIsUploaded(true);
+                setChatId(data.id);
+                setTitleDoc(data.title);
+                setEditedTitle(data.title); 
+                setFileName(current=>data.original_file_name);
+                 setFilePath(current=>data.filepath);
+                } else {
+                    console.error('Failed to create session:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error creating session:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        // Call the createSession function when the component mounts
+        createSession();
+    }, [responseId]); // Empty dependency array ensures it runs once on component mount
+    // Rajiv Code End
+    
     return (
         <>
             <Container fluid>

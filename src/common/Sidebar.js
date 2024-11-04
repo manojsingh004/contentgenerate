@@ -129,7 +129,7 @@ const Sidebar = () => {
                                 {item.responses.map(response => (
                                     <ListGroup.Item as="li" >
                                     <Link
-                                        to={`/response/${response.id}`}
+                                        to={`/chat-route/${response.id}`}
                                         key={response.id}
                                         className='text-decoration-none'
                                     >
