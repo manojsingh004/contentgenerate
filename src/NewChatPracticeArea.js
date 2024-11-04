@@ -11,7 +11,7 @@ import ScaleLoader from 'react-spinners/ScaleLoader';
 
 const NewChatPracticeArea = () => {
     const {
-        selectedPracticeArea, setSelectedPracticeArea,
+        selectedPracticeArea, setSelectedPracticeArea,setTitleDoc,
         selectedDocumentType, setSelectedDocumentType,
         practiceArea, documentTypes, fetchDocumentTypes,
         selectedPracticeAreaName,setSelectedPracticeAreaName,
@@ -25,6 +25,7 @@ const NewChatPracticeArea = () => {
     const [loading, setLoading] = useState(false); // Add loading state
     const navigate = useNavigate(); // Initialize useNavigate
         useEffect(() => {
+            setTitleDoc('');
             // Function to call the /createSession route
             const createSession = async () => {
                 try {
