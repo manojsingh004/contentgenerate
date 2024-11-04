@@ -1,8 +1,9 @@
-import React, { useContext,useRef  } from "react";
+import React, { useContext,useRef,useEffect  } from "react";
 import { Row, Col, Button, Table, Form, Container } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { ChatContext } from "./DataContext/ChatContext";
 import { Link, useParams } from 'react-router-dom';
+import Cookies from 'js-cookie'; // Import the js-cookie library
 
 import { useReactToPrint } from "react-to-print";
 import PrintableComponent from "./Document/PrintableComponent";
@@ -12,11 +13,13 @@ const LegalChatbotGPT = () => {
     const {
         fileName,
         isUploaded,
-        filePath,
+        fetchDocumentTypes,documentTypes,setSelectedPracticeArea,
+        setLoading,setIsUploaded,setSelectedDocumentType,setQuestions,
+        filePath,setChatId,setEditedTitle,setFileName,setFilePath,
         handleFileChange,
         questions,
         handleAddQuestion,
-        responseQuestion,
+        responseQuestion,setResponseQuestion,
         selectedPracticeAreaName,setSelectedPracticeAreaName,
         selectedDocumentTypeName,setSelectedDocumentTypeName,
         newQuestion,
@@ -45,7 +48,7 @@ const LegalChatbotGPT = () => {
         // Function to call the /createSession route
 
         const createSession = async () => {
-            setLoading(true);
+           // setLoading(true);
 
             try {
                 const response = await fetch(`https://dev.ciceroai.net/api/response/${responseId}`, {
@@ -58,7 +61,10 @@ const LegalChatbotGPT = () => {
 
                 if (response.ok) {
                  const data = await response.json();
-
+                 setTitleDoc(data.title);
+                 console.log(data.file_contents.references);
+                 setResponseQuestion(current =>data.file_contents.references);
+                 
                 // Await the fetchDocumentTypes directly
                 await fetchDocumentTypes(data.area_of_practice_id);
                     console.log(documentTypes);
@@ -74,17 +80,16 @@ const LegalChatbotGPT = () => {
                 setSelectedPracticeAreaName(name ? name.name : ''); // Guard against null
                 setIsUploaded(true);
                 setChatId(data.id);
-                setTitleDoc(data.title);
-                setEditedTitle(data.title); 
+                setTitleDoc(data.title); 
                 setFileName(current=>data.original_file_name);
-                 setFilePath(current=>data.filepath);
+                setFilePath(current=>data.filepath);
                 } else {
                     console.error('Failed to create session:', response.statusText);
                 }
             } catch (error) {
                 console.error('Error creating session:', error);
             } finally {
-                setLoading(false);
+              //  setLoading(false);
             }
         };
 
@@ -197,7 +202,7 @@ const LegalChatbotGPT = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {responseQuestion.questions.map((q, key) => {
+                                        {typeof(responseQuestion.questions)!=='undefined' &&  responseQuestion.questions.map((q, key) => {
                                             console.log(key)
                                             return (
                                                 <tr >
@@ -223,14 +228,14 @@ const LegalChatbotGPT = () => {
                             <div className="ai-analysis mt-4">
                                 <h5>AI Analysis: Accuracy of Party Identification</h5>
                                 <p>
-                                    {responseQuestion.summary}
+                                    {responseQuestion.length!==0 && responseQuestion.summary}
                                 </p>
                             </div>
                             <div className="ai-analysis mt-4 pt-4 border-top border-2">
                                 <h3 className="fs20">References</h3>
                                 {/* AI Analysis Section */}
                                 <div className="ai-analysis mt-4">
-                                    {responseQuestion.references.map((q, key) => {
+                                    {typeof(responseQuestion.questions)!=='undefined' &&  responseQuestion.references.map((q, key) => {
                                         console.log(key)
                                         return (
                                             <>
