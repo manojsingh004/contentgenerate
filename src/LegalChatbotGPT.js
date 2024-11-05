@@ -62,8 +62,8 @@ const LegalChatbotGPT = () => {
                 if (response.ok) {
                  const data = await response.json();
                  setTitleDoc(data.title);
-                 console.log(data.file_contents.references);
-                 setResponseQuestion(current =>data.file_contents.references);
+                 console.log(data.file_contents.references.questions);
+                 setResponseQuestion(data.file_contents.references);
                  
                 // Await the fetchDocumentTypes directly
                 await fetchDocumentTypes(data.area_of_practice_id);
@@ -207,7 +207,7 @@ const LegalChatbotGPT = () => {
                                             return (
                                                 <tr >
                                                     <td>{parseInt(key)+1}</td>
-                                                    <td>{q}</td>
+                                                    <td>{q.questions}</td>
                                                     <td>{responseQuestion.answers[key]}</td>
                                                     <td>
                                                         <Form.Control
