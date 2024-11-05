@@ -14,28 +14,31 @@ const ChatPracticeAreaList = () => {
   const [documents, setDocuments] = useState([]); // State to store documents
   const [loading, setLoading] = useState(true); // State to track loading
   const [searchQuery, setSearchQuery] = useState('');
+  const [totalDocuments, setTotalDocuments] = useState(0); // Add this state
 
   const navigate = useNavigate();
   useEffect(() => {
     const fetchDocuments = async () => {
       try {
-        const response = await axios.get(`https://dev.ciceroai.net/api/area/${practiceAreaId}`,{
+        const response = await axios.get(`https://dev.ciceroai.net/api/area/${practiceAreaId}`, {
           params: {
             page: currentPage,
-            items_per_page: itemsPerPage
-        }
-        }); // Adjust your endpoint as necessary
-        setDocuments(response.data.data); // Assuming response.data contains the list of documents
-        console.log(response.data)
+            items_per_page: itemsPerPage,
+          },
+        });
+  
+        setDocuments(response.data.data); // Assuming response.data.data contains the list of documents
+        setTotalDocuments(response.data.total || response.data.data.length); // Set totalDocuments, adjust according to the API response structure
+        console.log(response.data);
       } catch (error) {
         console.error('Error fetching documents:', error);
       } finally {
-        setLoading(false); // Set loading to false after data is loaded or on error
+        setLoading(false);
       }
     };
-
+  
     fetchDocuments();
-  }, [practiceAreaId,itemsPerPage,currentPage]);
+  }, [practiceAreaId, itemsPerPage, currentPage]);
   const deleteDocument = async (id) => {
     try {
       await axios.get(`https://dev.ciceroai.net/api/response/delete/${id}`);
@@ -82,7 +85,7 @@ const ChatPracticeAreaList = () => {
 );
 
   // Calculate the indices for pagination
-  const totalDocuments = filteredDocuments.length;
+  // const totalDocuments = filteredDocuments.length;
   const startIndex = (currentPage - 1) * itemsPerPage;
   const displayedDocuments = filteredDocuments.slice(startIndex, startIndex + itemsPerPage);
 
