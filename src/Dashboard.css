@@ -308,7 +308,8 @@ body{
     width: 28px;
 }
 .pagination-controls button.active{
-    background-color: #349AFF;
+    /* background-color: #349AFF; */
+    background-color: rgb(75, 87, 211);
     color: #fff;
 }
 .uploaded-file-icon button{
