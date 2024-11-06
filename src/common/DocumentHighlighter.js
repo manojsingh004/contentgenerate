@@ -43,7 +43,7 @@ export default function DocumentHighlighter({document}) {
   const [highlights, setHighlights] = useState(
   []
   );
-
+  console.log(document);
   const resetHighlights = () => {
     setHighlights([]);
   };
@@ -125,7 +125,7 @@ export default function DocumentHighlighter({document}) {
           position: "relative",
         }}
       >
-        <PdfLoader url={`https://dev.ciceroai.net/user-content/${document}`} beforeLoad={'load'}>
+        <PdfLoader url={url} beforeLoad={'load'}>
           {(pdfDocument) => (
             <PdfHighlighter
               pdfDocument={pdfDocument}

@@ -5,9 +5,10 @@ import { ChatContext } from "./DataContext/ChatContext";
 import { Link, useParams } from 'react-router-dom';
 import Cookies from 'js-cookie'; // Import the js-cookie library
 import { useReactToPrint } from "react-to-print";
-import PDFPreview from './PDFPreview/PDFPreview';
+
 import { Document, Packer, Paragraph, TextRun } from 'docx';
-import { saveAs } from 'file-saver';
+
+import DocumentHighlighter from "./common/DocumentHighlighter";
 
 const LegalChatbotGPT = () => {
     // Access context values and functions
@@ -99,7 +100,7 @@ const LegalChatbotGPT = () => {
     }, [responseId]); // Empty dependency array ensures it runs once on component mount
     
     // Path to your static PDF file
-    const pdfFile = `${process.env.PUBLIC_URL}/file.pdf`; // Adjust this path to your static PDF file location
+    // const pdfFile = `${process.env.PUBLIC_URL}/file.pdf`; // Adjust this path to your static PDF file location
 // const pdfFile = `https://dev.ciceroai.net/user-content/40/1730364282-405.pdf`; // Adjust this path to your static PDF file location
 
 const generateDocx = async () => {
@@ -247,7 +248,7 @@ const generateDocx = async () => {
                                             return (
                                                 <tr >
                                                     <td>{parseInt(key)+1}</td>
-                                                    <td>{q}</td>
+                                                    <td>{q.questions}</td>
                                                     <td>{responseQuestion.answers[key]}</td>
                                                     <td>
                                                         <Form.Control
@@ -296,7 +297,7 @@ const generateDocx = async () => {
                     </Col>
                     <Col md={5} className="right-content">
                         <Row className="RightPanelSide bg-white rounded-25 shadow-sm">
-                        <PDFPreview pdfFile={pdfFile} />
+                       <DocumentHighlighter document={filePath}></DocumentHighlighter>
                         </Row>
                     </Col>
                 </Row>
