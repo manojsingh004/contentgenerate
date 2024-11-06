@@ -365,3 +365,11 @@ body{
 .text-edit-box{
     max-width: 50%;
 }
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+      "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+      sans-serif;
+    background-color: #ffffff;
+    color: #333333;
+  }
