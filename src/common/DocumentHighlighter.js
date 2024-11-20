@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 
 
-import  {
-  Content,
-  IHighlight,
-  NewHighlight,
-  ScaledPosition,
-} from "react-pdf-highlighter-extended/dist/esm/contexts/HighlightContext";
+// import  {
+//   Content,
+//   IHighlight,
+//   NewHighlight,
+//   ScaledPosition,
+// } from "react-pdf-highlighter/dist/esm/contexts/HighlightContext";
 // import { AreaHighlight } from "react-pdf-highlighter-extended";
-import { PdfHighlighter,PdfLoader,Popup,Tip,AreaHighlight,Highlight } from "react-pdf-highlighter";
+import { PdfHighlighter,PdfLoader,Popup,Tip,AreaHighlight,Highlight,Content,ScaledPosition } from "react-pdf-highlighter";
 
 import "react-pdf-highlighter/dist/style.css";
 
@@ -38,7 +38,7 @@ const SECONDARY_PDF_URL = "https://arxiv.org/pdf/1604.02480";
 const searchParams = new URLSearchParams(document.location.search);
 const initialUrl = searchParams.get("url") || PRIMARY_PDF_URL;
 
-export default function DocumentHighlighter({document}) {
+export default function DocumentHighlighter({document,id}) {
   const [url, setUrl] = useState(initialUrl);
   const [highlights, setHighlights] = useState(
   []
@@ -114,7 +114,7 @@ export default function DocumentHighlighter({document}) {
       }),
     );
   };
-
+console.log('asdasd',document)
   return (
     <div className="App" style={{ display: "flex", height: "100vh" }}>
       
@@ -125,7 +125,7 @@ export default function DocumentHighlighter({document}) {
           position: "relative",
         }}
       >
-        <PdfLoader url={url} beforeLoad={'load'}>
+        {id>0 && <PdfLoader url={`https://dev.ciceroai.net/user-content/${id}/orginal/${document}`} beforeLoad={'load'}>
           {(pdfDocument) => (
             <PdfHighlighter
               pdfDocument={pdfDocument}
@@ -196,7 +196,7 @@ export default function DocumentHighlighter({document}) {
               highlights={highlights}
             />
           )}
-        </PdfLoader>
+        </PdfLoader>}
       </div>
     </div>
   );

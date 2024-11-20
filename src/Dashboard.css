@@ -123,7 +123,10 @@ body{
 .midnight-blue{
     color: #052044;
 }
-.upolad-file-name, .upolad-file-name:hover{
+ .upolad-file-name, .upolad-file-name:hover{
+    background-color: #EFEFEF;
+}
+.active .upolad-file-name, .upolad-file-name:hover{
     background-color: #DEF2FF;
 }
 .card {
@@ -374,3 +377,10 @@ body {
     background-color: #ffffff;
     color: #333333;
   }
+/*  span.position-relative.d-flex.active button.upolad-file-name.text-white.d-flex.align-items-center.gap-2.pe-none.btn.btn-primary {
+     background-color: #DEF2FF; 
+}
+  span.position-relative.d-flex button.upolad-file-name.text-white.d-flex.align-items-center.gap-2.pe-none.btn.btn-primary {
+    background: #EFEFEF;
+}
+*/

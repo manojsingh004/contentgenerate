@@ -1,12 +1,12 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { ChatContext } from './DataContext/ChatContext'; // Import the context
 import Plus from './Plus'; 
 import Save from './Save'; 
 import Minus from './Minus';
 
 const DueDiligenceQueries = (props) => {
-  const { questions: contextQuestions, handleSetQuestions } = useContext(ChatContext); // Use context
-  const [questions, setQuestions] = useState(contextQuestions || []);
+  const { questions: contextQuestions, handleSetQuestions,activeFileName,setActiveFileName,fileQuestions, setFileQuestions, } = useContext(ChatContext); // Use context
+  const [questions, setQuestions] = useState(fileQuestions || []);
   const [newQuestion, setNewQuestion] = useState({
     area_of_practice_id: 0,
     document_type_id: 0,
@@ -14,6 +14,7 @@ const DueDiligenceQueries = (props) => {
     questions: "",
     newQuestion: true,
   });
+
 
   const handleNewQuestionChange = (e) => {
     setNewQuestion((current) => ({
@@ -24,9 +25,16 @@ const DueDiligenceQueries = (props) => {
 
   const handleAddQuestion = () => {
     if (newQuestion.questions.trim()) {
-      const updatedQuestions = [...questions, newQuestion];
-      setQuestions(current=>updatedQuestions); // Update local state
+      const updatedQuestions = [...questions[activeFileName], newQuestion];
+      setQuestions((prevFileQuestions) => ({
+        ...prevFileQuestions,
+        [activeFileName]: updatedQuestions,
+      })); // Update local state
       handleSetQuestions(updatedQuestions); // Save to context
+      setFileQuestions((prevFileQuestions) => ({
+        ...prevFileQuestions,
+        [activeFileName]: updatedQuestions,
+      }));
       setNewQuestion({
         area_of_practice_id: 0,
         document_type_id: 0,
@@ -44,28 +52,17 @@ const DueDiligenceQueries = (props) => {
   };
 
   const handleSaveQuestions =  () => {
-    // try {
-    //   const response = await fetch('/api/save-questions', {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({ questions }),
-    //   });
-
-    //   if (!response.ok) {
-    //     throw new Error('Failed to save questions');
-    //   }
-
-    //   //alert('Questions saved successfully!');
-    // } catch (error) {
-    //   console.error('Error saving questions:', error);
-    //  // alert('An error occurred while saving questions.');
-    // }
     if (newQuestion.questions.trim()) {
-      const updatedQuestions = [...questions, newQuestion];
-      setQuestions(current=>updatedQuestions); // Update local state
+      const updatedQuestions = [...questions[activeFileName], newQuestion];
+      setQuestions((prevFileQuestions) => ({
+        ...prevFileQuestions,
+        [activeFileName]: updatedQuestions,
+      })); // Update local state
       handleSetQuestions(updatedQuestions); // Save to context
+      setFileQuestions((prevFileQuestions) => ({
+        ...prevFileQuestions,
+        [activeFileName]: updatedQuestions,
+      }));
       setNewQuestion({
         area_of_practice_id: 0,
         document_type_id: 0,
@@ -75,14 +72,14 @@ const DueDiligenceQueries = (props) => {
       });
       
     }
-    console.log(questions)
+    
   };
-
+  console.log(questions,'asdasd')
   return (
     <div>
       {/* List of Questions */}
       <ul style={{ listStyle: "none", padding: "0" }}>
-        {questions.map((question, index) => (
+        {questions[activeFileName]!==undefined && questions[activeFileName].map((question, index) => (
           <li
             key={index}
             style={{
@@ -100,7 +97,7 @@ const DueDiligenceQueries = (props) => {
             }}
           >
             <div style={{ width: "100%", display: "flex", justifyContent: "space-between" }}>
-              <span>{question.questions}</span>
+              <span>{(question.questions==undefined?question:question.questions)}</span>
               {question.newQuestion !== undefined && (
                 <span 
                   style={{ cursor: "pointer", color: "red" }} 

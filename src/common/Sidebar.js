@@ -126,17 +126,24 @@ const Sidebar = () => {
                             </Accordion.Header>
                             <Accordion.Body>
                             <ListGroup as="ul" className="scrollable">
-                                {item.responses.map(response => (
-                                    <ListGroup.Item as="li" >
+                                {typeof(item.responses)!==undefined  && item?.responses && Array.isArray(item.responses) && item.responses.map((response) =>{ 
+                                    console.log(response.title)
+                                    if(response.title!==null){
+                                    const associativeArray = Object.keys(JSON.parse(response.title)).map(key => ( JSON.parse(response.title)[key] ));
+
+                                    console.log(associativeArray[0],'testsdasd')
+                                    return (<ListGroup.Item as="li" >
                                     <Link
                                         to={`/chat-route/${response.id}`}
                                         key={response.id}
                                         className='text-decoration-none'
                                     >
-                                        {response.title}
+                                        {associativeArray[0]}
                                     </Link>
-                                    </ListGroup.Item>                                  
-                                ))}
+                                    </ListGroup.Item>  ) }else{
+                                        return ('');
+                                    }                               
+                                })}
                                 </ListGroup>
                             </Accordion.Body>
                         </Accordion.Item>
