@@ -200,7 +200,7 @@ const NewChatPracticeArea = () => {
         <Col md={12} className="right-content">
             <Container fluid>
                 <Row>
-                    <h3 className='fs24 ps-4'>New Chat</h3>
+                    <h3 className='fs24 ps-4'>New DD Case</h3>
                     <Row className="RightPanelSide bg-white m-2 rounded-25 shadow-sm">
                         <Col md={12} lg={12} className="mb-4 mt-4">
                             <Form.Group className="mb-3">

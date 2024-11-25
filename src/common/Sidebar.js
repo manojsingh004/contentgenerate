@@ -72,14 +72,14 @@ const Sidebar = () => {
             const data = await response.json();
             const newChatId = data.id;
     
-            // Save the new chat ID in context
+            // Save the New DD Case ID in context
             setChatId(newChatId);  // Assuming you have a `setChatId` function in ChatContext
     
-            // Navigate to "/practice-area" route after receiving the new chat ID  
+            // Navigate to "/practice-area" route after receiving the New DD Case ID  
             navigate("/practice-area");
     
         } catch (error) {
-            console.error("Error creating new chat:", error);
+            console.error("Error creating New DD Case:", error);
         }
         
     };

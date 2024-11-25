@@ -3,7 +3,7 @@ import React from 'react';
 const NewChatDocumentType = () => {
     return (
         <div className="main-content">
-            <h1>New Chat</h1>
+            <h1>New DD Case</h1>
             <div className="form-group">
                 <label>Select Practice Area</label>
                 <select>
