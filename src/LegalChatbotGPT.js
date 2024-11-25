@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useEffect } from "react";
+import React, { useContext, useRef, useEffect, useState } from "react";
 import { Row, Col, Button, Table, Form, Container } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { ChatContext } from "./DataContext/ChatContext";
@@ -27,14 +27,16 @@ const LegalChatbotGPT = () => {
         newQuestion,
         titleDoc,
         setTitleDoc,
-        setNewQuestion,
-        handleCommentChange
+        setNewQuestion
     } = useContext(ChatContext);
+
+    const [comments, setComments] = useState({});
+
     const { responseId } = useParams();
     const contentRef = useRef(null); // Define the ref for printable content
     const contentCompleteRef = useRef(null);
     const docRefs = useRef(null);
-    
+
     const handlePrint = useReactToPrint({
         contentRef: contentRef, // Set content to print from contentRef
         documentTitle: "PrintableDocument",
@@ -46,11 +48,11 @@ const LegalChatbotGPT = () => {
         onAfterPrint: () => alert("Print success!"),
     });
 
-    console.log(responseQuestion);
+
     // Rajiv Code Start
     useEffect(() => {
         // Function to call the /createSession route
-        
+
         const createSession = async () => {
             try {
                 const response = await fetch(`https://dev.ciceroai.net/api/response/${responseId}`, {
@@ -99,7 +101,7 @@ const LegalChatbotGPT = () => {
         };
 
         createSession();
-    }, [responseId,activeFileName]);
+    }, [responseId, activeFileName]);
 
     // Watch for changes to documentTypes and selectedDocumentType
     useEffect(() => {
@@ -109,12 +111,21 @@ const LegalChatbotGPT = () => {
             );
             setSelectedPracticeAreaName(name ? name.name : '');
         }
-    }, [documentTypes, selectedDocumentType,activeFileName]);
+    }, [documentTypes, selectedDocumentType, activeFileName]);
 
     // Path to your static PDF file
     // const pdfFile = `${process.env.PUBLIC_URL}/file.pdf`; // Adjust this path to your static PDF file location
     // const pdfFile = `https://dev.ciceroai.net/user-content/40/1730364282-405.pdf`; // Adjust this path to your static PDF file location
-
+    const handleCommentChange = (key, value, fileName) => {
+        console.log(key, value, fileName,comments);
+        setComments(prevComments => ({
+            ...prevComments,
+            [fileName]: {
+                ...prevComments[fileName],
+                [key]: value,
+            },
+        }));
+    }
     const generateDocx = async () => {
         console.log(docRefs.current.innerHTML)
         // Create a new document
@@ -140,7 +151,7 @@ const LegalChatbotGPT = () => {
             const link = document.createElement('a');
             link.href = blobUrl;
             link.target = '_blank'; // Open in a new tab
-            link.download = activeFileName +' Summary.docx'; // This hint can still help in some cases
+            link.download = activeFileName + ' Summary.docx'; // This hint can still help in some cases
 
             // Simulate a click on the link
             document.body.appendChild(link);
@@ -151,15 +162,15 @@ const LegalChatbotGPT = () => {
         }
     };
     // Rajiv Code End
-    const handleActiveQuestionList = (key,file)=>{
-        setActiveFileName(file);        
-        
+    const handleActiveQuestionList = (key, file) => {
+        setActiveFileName(file);
+
     }
-    const handleDeleteFIleList = async(key,file)=>{
-       // setActiveFileName(file);    
+    const handleDeleteFIleList = async (key, file) => {
+        // setActiveFileName(file);    
         const formData = new FormData();
         formData.append('fileName', file);
-            
+
         try {
             // Send data to server
             const response = await fetch(`https://dev.ciceroai.net/api/deleteFileDataApi/${responseId}`, {
@@ -172,18 +183,46 @@ const LegalChatbotGPT = () => {
             });
 
             if (response.ok) {
-                
+
                 const updatedData = await response.json();
                 const dataFileName = JSON.parse(updatedData.original_file_name);
                 setFileName(dataFileName);
                 setActiveFileName(dataFileName[0]);
             } else {
-               
+
             }
         } catch (error) {
-           
+
         }
     }
+    
+    const saveComment = async()=>{
+        console.log(comments);
+        // setActiveFileName(file);    
+        const formData = new FormData();
+        formData.append('comments',JSON.stringify(comments));
+        try {
+            // Send data to server
+            const response = await fetch(`https://dev.ciceroai.net/api/commentResponse/${responseId}`, {
+                method: 'POST',
+                body: formData,
+                credentials: 'include', // Include credentials (cookies)
+                headers: {
+                    'X-XSRF-TOKEN': Cookies.get('XSRF-TOKEN'), // Set the XSRF token from the cookie
+                },
+            });
+
+            if (response.ok) {
+                const updatedData = await response.json();
+                console.log(updatedData);
+            } else {
+
+            }
+        } catch (error) {
+
+        }
+    }
+
     console.log(responseQuestion);
     return (
         <>
@@ -215,13 +254,13 @@ const LegalChatbotGPT = () => {
                                             <path d="M20.4007 9.08468H19.8244V6.30404C19.8244 6.28671 19.8217 6.26924 19.8196 6.25151C19.8187 6.14121 19.7833 6.03278 19.7077 5.94686L15.0802 0.660951C15.0788 0.659594 15.0774 0.659113 15.0765 0.657668C15.0489 0.626852 15.0168 0.601202 14.9827 0.579053C14.9726 0.572312 14.9625 0.566665 14.9519 0.560712C14.9225 0.544735 14.8912 0.531297 14.8591 0.521624C14.8503 0.519347 14.8425 0.515758 14.8338 0.513482C14.7989 0.505165 14.7626 0.5 14.7259 0.5H3.35358C2.83431 0.5 2.41243 0.92236 2.41243 1.44119V9.08442H1.83621C1.09335 9.08442 0.490997 9.68655 0.490997 10.4297V17.425C0.490997 18.1674 1.09335 18.7702 1.83621 18.7702H2.41243V23.5588C2.41243 24.0777 2.83431 24.5 3.35358 24.5H18.883C19.4018 24.5 19.8241 24.0777 19.8241 23.5588V18.7702H20.4004C21.1431 18.7702 21.7455 18.1678 21.7455 17.4251V10.4299C21.7456 9.6866 21.1435 9.08468 20.4007 9.08468ZM3.35358 1.44119H14.2553V6.25642C14.2553 6.51643 14.4661 6.72701 14.7259 6.72701H18.883V9.08464H3.35358V1.44119ZM12.888 14.2735C11.9634 13.9513 11.36 13.4398 11.36 12.6301C11.36 11.6803 12.1527 10.9537 13.4662 10.9537C14.0935 10.9537 14.5562 11.0856 14.8862 11.2344L14.6056 12.25C14.3828 12.1429 13.9864 11.9857 13.4414 11.9857C12.8963 11.9857 12.6321 12.2335 12.6321 12.5226C12.6321 12.8778 12.946 13.0346 13.6642 13.3071C14.6468 13.6706 15.1093 14.1825 15.1093 14.9669C15.1093 15.9003 14.3908 16.6931 12.863 16.6931C12.2272 16.6931 11.5997 16.5281 11.2858 16.3544L11.5416 15.314C11.8803 15.4872 12.4007 15.661 12.9373 15.661C13.5159 15.661 13.821 15.4215 13.821 15.058C13.8212 14.7114 13.557 14.5129 12.888 14.2735ZM10.7581 15.5533V16.6107H7.28088V11.044H8.5449V15.5533H10.7581ZM3.24327 16.6107H1.8064L3.4167 13.7938L1.86396 11.0438H3.30937L3.79634 12.0597C3.96153 12.3983 4.0855 12.6705 4.21778 12.9848H4.23384C4.36634 12.6296 4.47358 12.3819 4.61357 12.0597L5.08438 11.0438H6.5213L4.95215 13.7605L6.60412 16.6102H5.15079L4.64675 15.6025C4.44062 15.2149 4.30839 14.9256 4.15142 14.6035H4.135C4.01923 14.9256 3.87915 15.2149 3.70555 15.6025L3.24327 16.6107ZM18.883 23.304H3.35358V18.7702H18.883V23.304H18.883ZM18.8915 16.6107L18.3876 15.603C18.1812 15.215 18.0491 14.9261 17.8921 14.6039H17.8761C17.7603 14.9261 17.6197 15.215 17.446 15.603L16.9841 16.6107H15.5468L17.1571 13.7938L15.6045 11.0438H17.0498L17.5374 12.0597C17.7024 12.3983 17.826 12.6705 17.9584 12.9848H17.9749C18.1068 12.6296 18.2139 12.3819 18.3545 12.0597L18.8251 11.0438H20.2624L18.6932 13.7605L20.3448 16.6102H18.8915V16.6107Z" fill="black" />
                                         </svg>
                                     </button>
-                                     <button className="bg-transparent border-0" onClick={generateDocx}>
+                                    <button className="bg-transparent border-0" onClick={generateDocx}>
                                         <svg width="22" height="25" viewBox="0 0 22 25" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M20.655 9.08468H20.0787V6.30404C20.0787 6.28658 20.076 6.26924 20.0736 6.25151C20.0727 6.14112 20.0375 6.03265 19.9619 5.94686L15.3347 0.660863C15.3333 0.659507 15.3319 0.659025 15.331 0.657668C15.3034 0.626852 15.2713 0.601114 15.2372 0.579053C15.2272 0.572181 15.217 0.566534 15.2065 0.560712C15.177 0.544735 15.1457 0.531297 15.1136 0.521624C15.1049 0.519347 15.097 0.515758 15.0884 0.513394C15.0534 0.505165 15.0171 0.5 14.9804 0.5H3.6081C3.08882 0.5 2.66695 0.92236 2.66695 1.44119V9.08442H2.09073C1.34787 9.08442 0.745514 9.68655 0.745514 10.4295V17.4248C0.745514 18.1674 1.34787 18.7702 2.09073 18.7702H2.66695V23.5588C2.66695 24.0777 3.08882 24.5 3.6081 24.5H19.1375C19.6563 24.5 20.0786 24.0777 20.0786 23.5588V18.7702H20.6549C21.3976 18.7702 22 18.1678 22 17.4251V10.4298C22.0001 9.68681 21.3976 9.08468 20.655 9.08468ZM3.6081 1.44141H14.5098V6.25664C14.5098 6.51664 14.7206 6.72723 14.9804 6.72723H19.1375V9.08486H3.6081V1.44141ZM15.4612 15.2008C15.8045 15.2008 16.1855 15.1264 16.4096 15.0363L16.581 15.9249C16.3723 16.0289 15.9021 16.1415 15.29 16.1415C13.5502 16.1415 12.6548 15.059 12.6548 13.6258C12.6548 11.9088 13.879 10.9533 15.402 10.9533C15.9914 10.9533 16.4396 11.0731 16.6412 11.1774L16.4099 12.0809C16.1784 11.9834 15.8577 11.8943 15.4542 11.8943C14.5507 11.8943 13.8494 12.439 13.8494 13.5588C13.8491 14.5657 14.4464 15.2008 15.4612 15.2008ZM12.1389 13.4991C12.1389 15.1486 11.1385 16.1489 9.66821 16.1489C8.175 16.1489 7.30161 15.0214 7.30161 13.5885C7.30161 12.0806 8.26438 10.9531 9.75024 10.9531C11.296 10.9531 12.1389 12.1105 12.1389 13.4991ZM2.33708 16.0446V11.1026C2.75519 11.0355 3.30003 10.9986 3.8748 10.9986C4.83035 10.9986 5.44977 11.17 5.93451 11.536C6.45737 11.9239 6.7861 12.5437 6.7861 13.4318C6.7861 14.3945 6.43518 15.0593 5.94983 15.4697C5.4197 15.9099 4.61355 16.1193 3.62792 16.1193C3.0387 16.1191 2.62064 16.0816 2.33708 16.0446ZM19.1375 23.304H3.6081V18.7702H19.1375V23.304H19.1375ZM20.0003 16.0666L19.5447 15.156C19.3581 14.8053 19.2386 14.5436 19.0969 14.2527H19.0819C18.9774 14.5441 18.8508 14.8053 18.694 15.156L18.2759 16.0666H16.977L18.4326 13.5209L17.0295 11.0353H18.3361L18.7763 11.9538C18.9257 12.2593 19.0373 12.5059 19.1569 12.7895H19.1715C19.291 12.4685 19.3884 12.2447 19.5148 11.9538L19.9404 11.0353H21.2397L19.8212 13.491L21.314 16.0666H20.0003Z" fill="black" />
                                             <path d="M5.5766 13.4688C5.58383 12.424 4.97193 11.8713 3.99423 11.8713C3.74005 11.8713 3.57612 11.8938 3.47894 11.9163V15.208C3.57638 15.2303 3.73309 15.2303 3.87495 15.2303C4.90509 15.2381 5.5766 14.671 5.5766 13.4688Z" fill="black" />
                                             <path d="M8.50406 13.5658C8.50406 14.5513 8.96695 15.2454 9.72833 15.2454C10.4973 15.2454 10.9372 14.5143 10.9372 13.5363C10.9372 12.6328 10.5045 11.8564 9.72027 11.8564C8.95154 11.8567 8.50406 12.5883 8.50406 13.5658Z" fill="black" />
                                         </svg>
-                                    </button> 
+                                    </button>
                                     <button className="bg-transparent border-0">
                                         <svg width="30" height="31" viewBox="0 0 30 31" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M13.75 4.26564C13.7479 3.57529 14.3058 3.01389 14.9962 3.01173C15.6865 3.00956 16.2479 3.56745 16.25 4.2578L13.75 4.26564Z" fill="#DCA11C" />
@@ -234,7 +273,7 @@ const LegalChatbotGPT = () => {
                             </div>
                             <div className="upload-section mb-4">
                                 {fileName && <span className="ml-2">{fileName.name}</span>}
-                                <span className='upload-hidden-btn position-relative'>
+                                <span className='upload-hidden-btn position-relative d-flex justify-content-between'>
                                     <input
                                         type="file"
                                         id="fileInput"
@@ -251,16 +290,19 @@ const LegalChatbotGPT = () => {
                                             </span> Upload Document
                                         </label>
                                     </Button>
+                                    <Button variant="primary" className="ml-2 p-2 " onClick={saveComment} >
+                                        Save
+                                    </Button>
                                 </span>
                             </div>
 
                             {/* Questions Table */}
                             <div className="d-flex">
-                                {fileName.length>0 && fileName.map((item,key) => {
+                                {fileName.length > 0 && fileName.map((item, key) => {
                                     return (
-                                        <span className={`fs18 position-relative pe-2 ${(activeFileName==item?'active':'')}`} style={{marginLeft:'8px'}} data-file={item} onClick={()=>handleActiveQuestionList(key,item)} key={key}>
+                                        <span className={`fs18 position-relative pe-2 ${(activeFileName == item ? 'active' : '')}`} style={{ marginLeft: '8px' }} data-file={item} onClick={() => handleActiveQuestionList(key, item)} key={key}>
                                             {item}
-                                            <span className='position-absolute close-doc' onClick={()=>handleDeleteFIleList(key,item)} key={key}>
+                                            <span className='position-absolute close-doc' onClick={() => handleDeleteFIleList(key, item)} key={key}>
                                                 <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path opacity="0.4" d="M9.75 16.5C13.8921 16.5 17.25 13.1421 17.25 9C17.25 4.85786 13.8921 1.5 9.75 1.5C5.60786 1.5 2.25 4.85786 2.25 9C2.25 13.1421 5.60786 16.5 9.75 16.5Z" fill="#B0B0B0" />
                                                     <path d="M10.5445 9.00007L12.2695 7.27508C12.487 7.05758 12.487 6.69758 12.2695 6.48008C12.052 6.26258 11.692 6.26258 11.4745 6.48008L9.74955 8.20507L8.02452 6.48008C7.80702 6.26258 7.44702 6.26258 7.22953 6.48008C7.01203 6.69758 7.01203 7.05758 7.22953 7.27508L8.95455 9.00007L7.22953 10.7251C7.01203 10.9426 7.01203 11.3026 7.22953 11.5201C7.34203 11.6326 7.48452 11.6851 7.62702 11.6851C7.76952 11.6851 7.91202 11.6326 8.02452 11.5201L9.74955 9.79507L11.4745 11.5201C11.587 11.6326 11.7295 11.6851 11.872 11.6851C12.0145 11.6851 12.157 11.6326 12.2695 11.5201C12.487 11.3026 12.487 10.9426 12.2695 10.7251L10.5445 9.00007Z" fill="#292D32" />
@@ -272,12 +314,15 @@ const LegalChatbotGPT = () => {
 
                             </div>
                             <div ref={contentCompleteRef}>
+                                
                                 <div className="d-flex position-relative">
+                                
+                                            
+                                      
                                     <Link
                                         to={`/response/${responseId}/`}
 
                                     >
-
                                         <span className="position-absolute response-add">
                                             <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <rect x="0.5" y="0.5" width="25" height="25" rx="3.5" stroke="#4B57D3" />
@@ -295,27 +340,27 @@ const LegalChatbotGPT = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            
-                                            {activeFileName !== '' &&  responseQuestion.questions?.[activeFileName] &&
- Array.isArray(responseQuestion.questions[activeFileName]) && responseQuestion.questions[activeFileName].map((q, key) => {
-                                                console.log(key)
-                                                return (
-                                                    <tr >
-                                                        <td>{parseInt(key) + 1}</td>
-                                                        <td>{q.questions}</td>
-                                                        <td>{responseQuestion.answers[activeFileName][key]}</td>
-                                                        <td>
-                                                            <Form.Control
-                                                                type="text"
-                                                                value={''}
-                                                                onChange={(e) => handleCommentChange(key, e.target.value)}
-                                                                placeholder={"Add comment"}
-                                                            />
-                                                        </td>
-                                                    </tr>
-                                                )
-                                            }
-                                            )}
+
+                                            {activeFileName !== '' && responseQuestion.questions?.[activeFileName] &&
+                                                Array.isArray(responseQuestion.questions[activeFileName]) && responseQuestion.questions[activeFileName].map((q, key) => {
+                                                    console.log(key)
+                                                    return (
+                                                        <tr >
+                                                            <td>{parseInt(key) + 1}</td>
+                                                            <td>{q.questions}</td>
+                                                            <td>{responseQuestion.answers[activeFileName][key]}</td>
+                                                            <td>
+                                                                <Form.Control
+                                                                    type="text"
+                                                                    value={comments[activeFileName]?.[key] || ''} // Fetch the comment dynamically
+                                                                    onChange={(e) => handleCommentChange(key, e.target.value, activeFileName)}
+                                                                    placeholder="Add comment"
+                                                                />
+                                                            </td>
+                                                        </tr>
+                                                    )
+                                                }
+                                                )}
                                         </tbody>
                                     </Table>
                                 </div>
@@ -330,19 +375,19 @@ const LegalChatbotGPT = () => {
                                     <h3 className="fs20">References</h3>
                                     {/* AI Analysis Section */}
                                     <div className="ai-analysis mt-4">
-                                        {activeFileName !== '' &&  responseQuestion.questions?.[activeFileName] &&
- Array.isArray(responseQuestion.questions[activeFileName]) && responseQuestion.references[activeFileName].map((q, key) => {
-                                            console.log(key)
-                                            return (
-                                                <>
-                                                    <h5 className="fs18">{parseInt(key) + 1}. {q.reference_title}</h5>
-                                                    <p>
-                                                        {q.reference_content}
-                                                    </p>
-                                                </>
+                                        {activeFileName !== '' && responseQuestion.questions?.[activeFileName] &&
+                                            Array.isArray(responseQuestion.questions[activeFileName]) && responseQuestion.references[activeFileName].map((q, key) => {
+                                                console.log(key)
+                                                return (
+                                                    <>
+                                                        <h5 className="fs18">{parseInt(key) + 1}. {q.reference_title}</h5>
+                                                        <p>
+                                                            {q.reference_content}
+                                                        </p>
+                                                    </>
 
-                                            )
-                                        })}
+                                                )
+                                            })}
 
                                     </div>
                                 </div>
@@ -352,7 +397,7 @@ const LegalChatbotGPT = () => {
                     </Col>
                     <Col md={5} className="right-content">
                         <Row className="RightPanelSide bg-white rounded-25 shadow-sm">
-                            {activeFileName!=''&&<DocumentHighlighter document={activeFileName} id={responseId}></DocumentHighlighter>}
+                            {activeFileName != '' && <DocumentHighlighter document={activeFileName} id={responseId}></DocumentHighlighter>}
                         </Row>
                     </Col>
                 </Row>
