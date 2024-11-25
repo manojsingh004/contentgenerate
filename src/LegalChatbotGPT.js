@@ -66,6 +66,8 @@ const LegalChatbotGPT = () => {
                 if (response.ok) {
                     const data = await response.json();
                     setTitleDoc(JSON.parse(data.title));
+                    setComments(JSON.parse(data.comments));
+                    console.log(JSON.parse(data.comments));
                     setResponseQuestion(current => data.file_contents.references);
                     const original = JSON.parse(data.original_file_name);
 
@@ -201,13 +203,15 @@ const LegalChatbotGPT = () => {
         // setActiveFileName(file);    
         const formData = new FormData();
         formData.append('comments',JSON.stringify(comments));
+        const bodyData = {'comments':JSON.stringify(comments)};
         try {
             // Send data to server
             const response = await fetch(`https://dev.ciceroai.net/api/commentResponse/${responseId}`, {
                 method: 'POST',
-                body: formData,
+                body:JSON.stringify({ comments }),
                 credentials: 'include', // Include credentials (cookies)
                 headers: {
+                    'Content-Type': 'application/json',
                     'X-XSRF-TOKEN': Cookies.get('XSRF-TOKEN'), // Set the XSRF token from the cookie
                 },
             });
