@@ -88,6 +88,7 @@ const ChatResponse = () => {
                 setFileName(current => dataFileName);
                 
                 setFileQuestions(JSON.parse(data.questions));
+                
                 setQuestions(JSON.parse(data.questions));
                 setSelectedPracticeAreaName(name ? name.name : ''); // Guard against null
                 setIsUploaded(true);
@@ -269,7 +270,7 @@ const ChatResponse = () => {
                     <Col md={12} lg={12} className="mb-4 mt-4">
                         <Form.Group className="mb-3">
                             <Form.Label>Select Practice Area</Form.Label>
-                            <Form.Select value={selectedPracticeArea} onChange={handlePracticeAreaChange}>
+                            <Form.Select value={selectedPracticeArea} disabled onChange={handlePracticeAreaChange}>
                                 <option value="">Select Practice Area</option>
                                 {practiceArea.map((area) => (
                                     <option key={area.id} value={area.id}>{area.name}</option>
@@ -280,7 +281,7 @@ const ChatResponse = () => {
                         {selectedPracticeArea !== 0 && (
                             <Form.Group className="mb-3">
                                 <Form.Label>Select Document Type</Form.Label>
-                                <Form.Select value={selectedDocumentType} onChange={handleDocumentTypeChange}>
+                                <Form.Select value={selectedDocumentType} disabled onChange={handleDocumentTypeChange}>
                                     <option value="">Select Document Type</option>
                                     {documentTypes.map((type) => (
                                         <option key={type.id} value={type.id}>{type.name}</option>

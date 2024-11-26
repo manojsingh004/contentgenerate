@@ -14,7 +14,9 @@ const DueDiligenceQueries = (props) => {
     questions: "",
     newQuestion: true,
   });
+    useEffect(() => {
 
+    }, [questions]);
 
   const handleNewQuestionChange = (e) => {
     setNewQuestion((current) => ({

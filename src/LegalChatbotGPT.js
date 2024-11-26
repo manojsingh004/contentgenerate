@@ -6,7 +6,7 @@ import { Link, useParams } from 'react-router-dom';
 import Cookies from 'js-cookie'; // Import the js-cookie library
 import { useReactToPrint } from "react-to-print";
 
-import { Document, Packer, Paragraph, TextRun } from 'docx';
+import { Document, Packer, Paragraph, TextRun, Table as TabelDoc, TableCell, TableRow, HeadingLevel } from 'docx';
 
 import DocumentHighlighter from "./common/DocumentHighlighter";
 // import { Button as BootstrapButton } from 'react-bootstrap';
@@ -31,7 +31,6 @@ const LegalChatbotGPT = () => {
         setTitleDoc,
         setNewQuestion
     } = useContext(ChatContext);
-
     const [comments, setComments] = useState({});
 
     const { responseId } = useParams();
@@ -54,7 +53,14 @@ const LegalChatbotGPT = () => {
     // Rajiv Code Start
     useEffect(() => {
         // Function to call the /createSession route
+        if (parentRef.current && childRef.current) {
+            // Exclude the child element from the parent's ref logic
+            const elementsWithoutChild = Array.from(parentRef.current.children).filter(
+                (el) => el !== childRef.current
+            );
 
+            console.log('Parent ref without child:', elementsWithoutChild);
+        }
         const createSession = async () => {
             try {
                 const response = await fetch(`https://dev.ciceroai.net/api/response/${responseId}`, {
@@ -118,14 +124,15 @@ const LegalChatbotGPT = () => {
     }, [documentTypes, selectedDocumentType, activeFileName]);
 
     const handleCommentChange = (key, value, fileName) => {
-        console.log(key, value, fileName,comments);
+        console.log(key, value, fileName, comments);
         setComments(prevComments => ({
             ...prevComments,
             [fileName]: {
-                ...prevComments[fileName],
+                ...(prevComments?.[fileName]||{}),
                 [key]: value,
             },
         }));
+        console.log(key, value, fileName, comments);
     }
     const generateDocx = async () => {
         console.log(docRefs.current.innerHTML)
@@ -162,6 +169,125 @@ const LegalChatbotGPT = () => {
             console.error("Error generating document:", error);
         }
     };
+    const generateDocxAll = async () => {
+        // Create a new document
+        console.log(responseQuestion.questions, 'djfnsidfnsi', fileName)
+        const doc = new Document({
+            sections: [
+                {
+                    properties: {},
+                    children: fileName.map((itemFile, key) => {
+                        const questions = responseQuestion.questions[itemFile] || [];
+                        const answers = responseQuestion.answers[itemFile] || [];
+                        const headingData = titleDoc[itemFile];
+
+                        const fileReferences = responseQuestion?.references?.[itemFile] || "No References Available";
+                        const fileSummary = responseQuestion?.summary?.[itemFile] || "No Summary Available";
+
+                        const heading = new Paragraph({
+                            text: headingData+` (${itemFile})`,
+                            heading: HeadingLevel.HEADING_1,
+                        });
+
+                        // Create table rows for questions and answers
+                        const tableRows = questions.map((questionObj, index) => {
+                            const answer = answers[index] || "No answer provided.";
+                            return new TableRow({
+                                children: [
+                                    new TableCell({
+                                        children: [new Paragraph(questionObj.questions)],
+                                    }),
+                                    new TableCell({
+                                        children: [new Paragraph(answer)],
+                                    }),
+                                ],
+                            });
+                        });
+
+                        // Create table
+                        const table = new TabelDoc({
+                            rows: [
+                                new TableRow({
+                                    children: [
+                                        new TableCell({
+                                            children: [new Paragraph("Question")],
+                                        }),
+                                        new TableCell({
+                                            children: [new Paragraph("Answer")],
+                                        }),
+                                    ],
+                                }),
+                                ...tableRows,
+                            ],
+                        });
+
+                        const referencesHeading = new Paragraph({
+                            text: "References",
+                            heading: HeadingLevel.HEADING_2,
+                        });
+
+                        const referencesContent = fileReferences.flatMap((itemRef) => {
+                            
+                            return [
+                                new Paragraph(" "), 
+                            new Paragraph({
+                                text: itemRef.reference_title,
+                                heading: HeadingLevel.HEADING_2,
+                            }),
+                            new Paragraph({
+                                text: itemRef.reference_content,
+                            }),
+                            new Paragraph(" "), 
+                        ]
+                    });
+                    console.log(referencesContent);
+
+                        const summaryHeading = new Paragraph({
+                            text: "Summary",
+                            heading: HeadingLevel.HEADING_2,
+                        });
+
+                        const summaryParagraph = new Paragraph({
+                            text: fileSummary,
+                        });
+
+                        return [
+                            heading,
+                            new Paragraph(" "), // Spacing
+                            table,
+                            new Paragraph(" "), // Spacing
+                            referencesHeading,
+                            new Paragraph(" "), // Spacing
+                            ...referencesContent,
+                            new Paragraph(" "), // Spacing
+                            summaryHeading,
+                            new Paragraph(" "), // Spacing
+                            summaryParagraph,
+                        ];
+
+                    }).flat(),
+                },
+            ],
+        });
+
+        try {
+            const blob = await Packer.toBlob(doc);
+            const blobUrl = URL.createObjectURL(blob);
+
+            // Create a link element to trigger the open action
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.target = '_blank'; // Open in a new tab
+            link.download = 'detailed Summary.docx'; // This hint can still help in some cases
+
+            // Simulate a click on the link
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (error) {
+            console.error("Error generating document:", error);
+        }
+    }
     const [show, setShow] = useState(false);
 
     const handleClose = () => setShow(false);
@@ -201,18 +327,18 @@ const LegalChatbotGPT = () => {
 
         }
     }
-    
-    const saveComment = async()=>{
+
+    const saveComment = async () => {
         console.log(comments);
         // setActiveFileName(file);    
         const formData = new FormData();
-        formData.append('comments',JSON.stringify(comments));
-        const bodyData = {'comments':JSON.stringify(comments)};
+        formData.append('comments', JSON.stringify(comments));
+        const bodyData = { 'comments': JSON.stringify(comments) };
         try {
             // Send data to server
             const response = await fetch(`https://dev.ciceroai.net/api/commentResponse/${responseId}`, {
                 method: 'POST',
-                body:JSON.stringify({ comments }),
+                body: JSON.stringify({ comments }),
                 credentials: 'include', // Include credentials (cookies)
                 headers: {
                     'Content-Type': 'application/json',
@@ -269,7 +395,7 @@ const LegalChatbotGPT = () => {
                                             <path d="M8.50406 13.5658C8.50406 14.5513 8.96695 15.2454 9.72833 15.2454C10.4973 15.2454 10.9372 14.5143 10.9372 13.5363C10.9372 12.6328 10.5045 11.8564 9.72027 11.8564C8.95154 11.8567 8.50406 12.5883 8.50406 13.5658Z" fill="black" />
                                         </svg>
                                     </button>
-                                    <button className="bg-transparent border-0">
+                                    <button className="bg-transparent border-0" onClick={generateDocxAll}>
                                         <svg width="30" height="31" viewBox="0 0 30 31" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M13.75 4.26564C13.7479 3.57529 14.3058 3.01389 14.9962 3.01173C15.6865 3.00956 16.2479 3.56745 16.25 4.2578L13.75 4.26564Z" fill="#DCA11C" />
                                             <path d="M17.8948 13.3689L16.2837 14.99L16.25 4.25781L13.75 4.26565L13.7837 14.9978L12.1626 13.3868C11.6729 12.9002 10.8814 12.9026 10.3948 13.3924C9.90816 13.882 9.91064 14.6735 10.4003 15.1601L10.4035 15.1632L10.4047 15.1645L15.0488 19.7795L19.6508 15.1484L19.6578 15.1414L19.6588 15.1404L19.6598 15.1394L19.6672 15.132L17.8948 13.3689Z" fill="#DCA11C" />
@@ -319,43 +445,43 @@ const LegalChatbotGPT = () => {
 
                             </div>
                             <div ref={contentCompleteRef} className="d-flex flex-column">
-                                
+
                                 <div className="d-flex position-relative flex-column">
-                                    <div className="d-flex justify-content-end gap-3">      
-                                    <span>                          
-                                        <Link
-                                            to={`/response/${responseId}/`}
-                                            title="Edit"
-                                        >
-                                            
+                                    <div className="d-flex justify-content-end gap-3">
+                                        <span>
+                                            <Link
+                                                to={`/response/${responseId}/`}
+                                                title="Edit"
+                                            >
+
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
-                                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
-                                                    </svg>
-                                            
-                                        </Link>
-                                    </span>
-                                    <span>
-                                    <button
-                                        onClick={saveComment}
-                                        title="Save"
-                                        style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
-                                        aria-label="Save comment"
-                                        >
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="16"
-                                            height="16"
-                                            fill="currentColor"
-                                            className="bi bi-floppy2-fill"
-                                            viewBox="0 0 16 16"
-                                        >
-                                            <path d="M12 2h-2v3h2z" />
-                                            <path d="M1.5 0A1.5 1.5 0 0 0 0 1.5v13A1.5 1.5 0 0 0 1.5 16h13a1.5 1.5 0 0 0 1.5-1.5V2.914a1.5 1.5 0 0 0-.44-1.06L14.147.439A1.5 1.5 0 0 0 13.086 0zM4 6a1 1 0 0 1-1-1V1h10v4a1 1 0 0 1-1 1zM3 9h10a1 1 0 0 1 1 1v5H2v-5a1 1 0 0 1 1-1" />
-                                        </svg>
-                                        </button>
+                                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
+                                                </svg>
+
+                                            </Link>
                                         </span>
-                                    </div>  
+                                        <span>
+                                            <button
+                                                onClick={saveComment}
+                                                title="Save"
+                                                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+                                                aria-label="Save comment"
+                                            >
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    width="16"
+                                                    height="16"
+                                                    fill="currentColor"
+                                                    className="bi bi-floppy2-fill"
+                                                    viewBox="0 0 16 16"
+                                                >
+                                                    <path d="M12 2h-2v3h2z" />
+                                                    <path d="M1.5 0A1.5 1.5 0 0 0 0 1.5v13A1.5 1.5 0 0 0 1.5 16h13a1.5 1.5 0 0 0 1.5-1.5V2.914a1.5 1.5 0 0 0-.44-1.06L14.147.439A1.5 1.5 0 0 0 13.086 0zM4 6a1 1 0 0 1-1-1V1h10v4a1 1 0 0 1-1 1zM3 9h10a1 1 0 0 1 1 1v5H2v-5a1 1 0 0 1 1-1" />
+                                                </svg>
+                                            </button>
+                                        </span>
+                                    </div>
                                     <Table bordered ref={contentRef} className="mt-2">
                                         <thead>
                                             <tr>
@@ -376,54 +502,61 @@ const LegalChatbotGPT = () => {
                                                             <td>{q.questions}</td>
                                                             <td>{responseQuestion.answers[activeFileName][key]}</td>
                                                             <td className="p-2 text-center">
-                                                            <button
-                                                                style={{ cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
-                                                                onClick={handleShow}
-                                                                title="Add Comment"
-                                                                aria-label="Add Comment"
+                                                            <Form.Control
+                                                                                as="textarea"
+                                                                                value={(comments?.[activeFileName]?.[key] || '')} // Fetch dynamically
+                                                                                onChange={(e) => handleCommentChange(key, e.target.value, activeFileName)}
+                                                                                //placeholder="Add comment"
+                                                                                style={{ height: '100px' }}
+                                                                            />
+                                                                {/* <button
+                                                                    style={{ cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
+                                                                    onClick={handleShow}
+                                                                    title="Add Comment"
+                                                                    aria-label="Add Comment"
                                                                 >
-                                                                <svg
-                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                    width="16"
-                                                                    height="16"
-                                                                    fill="currentColor"
-                                                                    className="bi bi-plus-square"
-                                                                    viewBox="0 0 16 16"
-                                                                >
-                                                                    <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z" />
-                                                                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
-                                                                </svg>
+                                                                    <svg
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        width="16"
+                                                                        height="16"
+                                                                        fill="currentColor"
+                                                                        className="bi bi-plus-square"
+                                                                        viewBox="0 0 16 16"
+                                                                    >
+                                                                        <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z" />
+                                                                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+                                                                    </svg>
                                                                 </button>
-                                                            {show && ( 
-                                                                <Modal 
-                                                                    show={show}
-                                                                    onHide={handleClose}
-                                                                    backdrop=""
-                                                                    keyboard={false}
-                                                                    style={{backgroundColor: 'rgba(0, 0, 0, 0.1)'}}
-                                                                >
-                                                                    <Modal.Header closeButton>
-                                                                        <Modal.Title>Add Comment</Modal.Title>
-                                                                    </Modal.Header>
-                                                                    <Modal.Body>
-                                                                        <Form.Control
-                                                                            as="textarea"
-                                                                            value={comments[activeFileName]?.[key] || ''} // Fetch dynamically
-                                                                            onChange={(e) => handleCommentChange(key, e.target.value, activeFileName)}
-                                                                            placeholder="Add comment"
-                                                                            style={{ height: '100px' }} 
-                                                                        />
-                                                                    </Modal.Body>
-                                                                    <Modal.Footer>
-                                                                        <Button variant="secondary" onClick={handleClose}>
-                                                                            Close
-                                                                        </Button>
-                                                                        <Button variant="primary" onClick={handleClose}>
-                                                                            Save Changes
-                                                                        </Button>
-                                                                    </Modal.Footer>
-                                                                </Modal>
-                                                            )}
+                                                                {show && (
+                                                                    <Modal
+                                                                        show={show}
+                                                                        onHide={handleClose}
+                                                                        backdrop=""
+                                                                        keyboard={false}
+                                                                        style={{ backgroundColor: 'rgba(0, 0, 0, 0.1)' }}
+                                                                    >
+                                                                        <Modal.Header closeButton>
+                                                                            <Modal.Title>Add Comment</Modal.Title>
+                                                                        </Modal.Header>
+                                                                        <Modal.Body>
+                                                                            <Form.Control
+                                                                                as="textarea"
+                                                                                value={(comments?.[activeFileName]?.[key] || '')} // Fetch dynamically
+                                                                                onChange={(e) => handleCommentChange(key, e.target.value, activeFileName)}
+                                                                                placeholder="Add comment"
+                                                                                style={{ height: '100px' }}
+                                                                            />
+                                                                        </Modal.Body>
+                                                                        <Modal.Footer>
+                                                                            <Button variant="secondary" onClick={handleClose}>
+                                                                                Close
+                                                                            </Button>
+                                                                            <Button variant="primary" onClick={handleClose}>
+                                                                                Save Changes
+                                                                            </Button>
+                                                                        </Modal.Footer>
+                                                                    </Modal>
+                                                                )} */}
 
                                                             </td>
                                                         </tr>
