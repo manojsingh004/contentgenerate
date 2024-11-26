@@ -62,7 +62,7 @@ const ChatPracticeAreaList = () => {
     setUploadedFile(null); // New state to store the uploaded file
     setIsUploaded(false);
     setQuestions([]);
-    setFileQuestions([]);
+    // setFileQuestions(current=>[]);
     setNewQuestion("");
     setResponseQuestion([]);
     setChatId(null);

@@ -73,7 +73,7 @@ export const ChatProvider = ({ children }) => {
         setUploadedFile(null);
         setIsUploaded(false);
         setQuestions([]);
-        setFileQuestions([]);
+        setFileQuestions(current=>[]);
         setNewQuestion("");
         setResponseQuestion([]);
         setChatId(null);
@@ -107,7 +107,7 @@ export const ChatProvider = ({ children }) => {
             }
     
             // Set the updated file questions to the state
-            setFileQuestions(updatedFileQuestions);
+            setFileQuestions(current=>updatedFileQuestions);
             setUploadedFile(selectedFile); // Save the actual file in the state
             setIsUploaded(true);
         }

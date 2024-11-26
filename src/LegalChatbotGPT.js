@@ -32,7 +32,7 @@ const LegalChatbotGPT = () => {
         setNewQuestion
     } = useContext(ChatContext);
     const [comments, setComments] = useState({});
-
+    const [deleteSelect, setDeleteSelect] = useState('');
     const { responseId } = useParams();
     const contentRef = useRef(null); // Define the ref for printable content
     const contentCompleteRef = useRef(null);
@@ -47,20 +47,20 @@ const LegalChatbotGPT = () => {
         contentRef: contentCompleteRef, // Set content to print from contentRef
         documentTitle: "PrintableDocument",
         onAfterPrint: () => alert("Print success!"),
+   
     });
+    const [show, setShow] = useState(false);
 
+    const handleClose = () => setShow(false);
+    const handleShow = (key, item) => {
+        setDeleteSelect(item)
+        setShow(true)
+    };
 
     // Rajiv Code Start
     useEffect(() => {
         // Function to call the /createSession route
-        if (parentRef.current && childRef.current) {
-            // Exclude the child element from the parent's ref logic
-            const elementsWithoutChild = Array.from(parentRef.current.children).filter(
-                (el) => el !== childRef.current
-            );
-
-            console.log('Parent ref without child:', elementsWithoutChild);
-        }
+        
         const createSession = async () => {
             try {
                 const response = await fetch(`https://dev.ciceroai.net/api/response/${responseId}`, {
@@ -288,20 +288,17 @@ const LegalChatbotGPT = () => {
             console.error("Error generating document:", error);
         }
     }
-    const [show, setShow] = useState(false);
-
-    const handleClose = () => setShow(false);
-    const handleShow = () => setShow(true);
+   
 
     // Rajiv Code End
     const handleActiveQuestionList = (key, file) => {
         setActiveFileName(file);
 
     }
-    const handleDeleteFIleList = async (key, file) => {
+    const handleDeleteFIleList = async ( ) => {
         // setActiveFileName(file);    
         const formData = new FormData();
-        formData.append('fileName', file);
+        formData.append('fileName', deleteSelect);
 
         try {
             // Send data to server
@@ -320,6 +317,7 @@ const LegalChatbotGPT = () => {
                 const dataFileName = JSON.parse(updatedData.original_file_name);
                 setFileName(dataFileName);
                 setActiveFileName(dataFileName[0]);
+                setShow(false)
             } else {
 
             }
@@ -433,7 +431,7 @@ const LegalChatbotGPT = () => {
                                     return (
                                         <span className={`fs18 position-relative pe-2 ${(activeFileName == item ? 'active' : '')}`} style={{ marginLeft: '8px' }} data-file={item} onClick={() => handleActiveQuestionList(key, item)} key={key}>
                                             {item}
-                                            <span className='position-absolute close-doc' onClick={() => handleDeleteFIleList(key, item)} key={key}>
+                                            <span className='position-absolute close-doc' onClick={() => handleShow(key, item)} key={key}>
                                                 <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path opacity="0.4" d="M9.75 16.5C13.8921 16.5 17.25 13.1421 17.25 9C17.25 4.85786 13.8921 1.5 9.75 1.5C5.60786 1.5 2.25 4.85786 2.25 9C2.25 13.1421 5.60786 16.5 9.75 16.5Z" fill="#B0B0B0" />
                                                     <path d="M10.5445 9.00007L12.2695 7.27508C12.487 7.05758 12.487 6.69758 12.2695 6.48008C12.052 6.26258 11.692 6.26258 11.4745 6.48008L9.74955 8.20507L8.02452 6.48008C7.80702 6.26258 7.44702 6.26258 7.22953 6.48008C7.01203 6.69758 7.01203 7.05758 7.22953 7.27508L8.95455 9.00007L7.22953 10.7251C7.01203 10.9426 7.01203 11.3026 7.22953 11.5201C7.34203 11.6326 7.48452 11.6851 7.62702 11.6851C7.76952 11.6851 7.91202 11.6326 8.02452 11.5201L9.74955 9.79507L11.4745 11.5201C11.587 11.6326 11.7295 11.6851 11.872 11.6851C12.0145 11.6851 12.157 11.6326 12.2695 11.5201C12.487 11.3026 12.487 10.9426 12.2695 10.7251L10.5445 9.00007Z" fill="#292D32" />
@@ -450,7 +448,11 @@ const LegalChatbotGPT = () => {
                                     <div className="d-flex justify-content-end gap-3">
                                         <span>
                                             <Link
-                                                to={`/response/${responseId}/`}
+                                                onClick={(e)=>{
+                                                    e.preventDefault();
+                                                    window.location = `/response/${responseId}/`
+                                                
+                                                }}
                                                 title="Edit"
                                             >
 
@@ -482,6 +484,31 @@ const LegalChatbotGPT = () => {
                                             </button>
                                         </span>
                                     </div>
+                                    {show && (
+                                                                    <Modal
+                                                                        show={show}
+                                                                        onHide={handleClose}
+                                                                        backdrop=""
+                                                                        keyboard={false}
+                                                                        style={{ backgroundColor: 'rgba(0, 0, 0, 0.1)' }}
+                                                                    >
+                                                                        <Modal.Header closeButton>
+                                                                            <Modal.Title>Delete File</Modal.Title>
+                                                                        </Modal.Header>
+                                                                        <Modal.Body>
+                                                                            Delete file
+                                                                        </Modal.Body>
+                                                                        <Modal.Footer>
+                                                                            <Button variant="secondary" onClick={handleClose}>
+                                                                                Close
+                                                                            </Button>
+                                                                            <Button variant="primary" onClick={handleDeleteFIleList}>
+                                                                                Delete
+                                                                            </Button>
+                                                                        </Modal.Footer>
+                                                                    </Modal>
+                                                                )} 
+
                                     <Table bordered ref={contentRef} className="mt-2">
                                         <thead>
                                             <tr>
@@ -502,11 +529,12 @@ const LegalChatbotGPT = () => {
                                                             <td>{q.questions}</td>
                                                             <td>{responseQuestion.answers[activeFileName][key]}</td>
                                                             <td className="p-2 text-center">
+                                                                
                                                             <Form.Control
                                                                                 as="textarea"
                                                                                 value={(comments?.[activeFileName]?.[key] || '')} // Fetch dynamically
                                                                                 onChange={(e) => handleCommentChange(key, e.target.value, activeFileName)}
-                                                                                //placeholder="Add comment"
+                                                                                placeholder="Add comment"
                                                                                 style={{ height: '100px' }}
                                                                             />
                                                                 {/* <button
