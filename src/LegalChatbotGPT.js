@@ -9,6 +9,8 @@ import { useReactToPrint } from "react-to-print";
 import { Document, Packer, Paragraph, TextRun } from 'docx';
 
 import DocumentHighlighter from "./common/DocumentHighlighter";
+// import { Button as BootstrapButton } from 'react-bootstrap';
+import Modal from 'react-bootstrap/Modal';
 
 const LegalChatbotGPT = () => {
     // Access context values and functions
@@ -115,9 +117,6 @@ const LegalChatbotGPT = () => {
         }
     }, [documentTypes, selectedDocumentType, activeFileName]);
 
-    // Path to your static PDF file
-    // const pdfFile = `${process.env.PUBLIC_URL}/file.pdf`; // Adjust this path to your static PDF file location
-    // const pdfFile = `https://dev.ciceroai.net/user-content/40/1730364282-405.pdf`; // Adjust this path to your static PDF file location
     const handleCommentChange = (key, value, fileName) => {
         console.log(key, value, fileName,comments);
         setComments(prevComments => ({
@@ -163,6 +162,11 @@ const LegalChatbotGPT = () => {
             console.error("Error generating document:", error);
         }
     };
+    const [show, setShow] = useState(false);
+
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
+
     // Rajiv Code End
     const handleActiveQuestionList = (key, file) => {
         setActiveFileName(file);
@@ -275,7 +279,7 @@ const LegalChatbotGPT = () => {
                                     </button>
                                 </div>
                             </div>
-                            <div className="upload-section mb-4">
+                            {/* <div className="upload-section mb-4">
                                 {fileName && <span className="ml-2">{fileName.name}</span>}
                                 <span className='upload-hidden-btn position-relative d-flex justify-content-between'>
                                     <input
@@ -294,14 +298,11 @@ const LegalChatbotGPT = () => {
                                             </span> Upload Document
                                         </label>
                                     </Button>
-                                    <Button variant="primary" className="ml-2 p-2 " onClick={saveComment} >
-                                        Save
-                                    </Button>
                                 </span>
-                            </div>
+                            </div> */}
 
                             {/* Questions Table */}
-                            <div className="d-flex">
+                            <div className="d-flex mt-2">
                                 {fileName.length > 0 && fileName.map((item, key) => {
                                     return (
                                         <span className={`fs18 position-relative pe-2 ${(activeFileName == item ? 'active' : '')}`} style={{ marginLeft: '8px' }} data-file={item} onClick={() => handleActiveQuestionList(key, item)} key={key}>
@@ -317,24 +318,45 @@ const LegalChatbotGPT = () => {
                                 })}
 
                             </div>
-                            <div ref={contentCompleteRef}>
+                            <div ref={contentCompleteRef} className="d-flex flex-column">
                                 
-                                <div className="d-flex position-relative">
-                                
+                                <div className="d-flex position-relative flex-column">
+                                    <div className="d-flex justify-content-end gap-3">      
+                                    <span>                          
+                                        <Link
+                                            to={`/response/${responseId}/`}
+                                            title="Edit"
+                                        >
                                             
-                                      
-                                    <Link
-                                        to={`/response/${responseId}/`}
-
-                                    >
-                                        <span className="position-absolute response-add">
-                                            <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <rect x="0.5" y="0.5" width="25" height="25" rx="3.5" stroke="#4B57D3" />
-                                                <path d="M8 13H18M13 8V18" stroke="#4B57D3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                            </svg>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+                                                    </svg>
+                                            
+                                        </Link>
+                                    </span>
+                                    <span>
+                                    <button
+                                        onClick={saveComment}
+                                        title="Save"
+                                        style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+                                        aria-label="Save comment"
+                                        >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="16"
+                                            height="16"
+                                            fill="currentColor"
+                                            className="bi bi-floppy2-fill"
+                                            viewBox="0 0 16 16"
+                                        >
+                                            <path d="M12 2h-2v3h2z" />
+                                            <path d="M1.5 0A1.5 1.5 0 0 0 0 1.5v13A1.5 1.5 0 0 0 1.5 16h13a1.5 1.5 0 0 0 1.5-1.5V2.914a1.5 1.5 0 0 0-.44-1.06L14.147.439A1.5 1.5 0 0 0 13.086 0zM4 6a1 1 0 0 1-1-1V1h10v4a1 1 0 0 1-1 1zM3 9h10a1 1 0 0 1 1 1v5H2v-5a1 1 0 0 1 1-1" />
+                                        </svg>
+                                        </button>
                                         </span>
-                                    </Link>
-                                    <Table bordered ref={contentRef} className="mt-4">
+                                    </div>  
+                                    <Table bordered ref={contentRef} className="mt-2">
                                         <thead>
                                             <tr>
                                                 <th>No.</th>
@@ -353,13 +375,56 @@ const LegalChatbotGPT = () => {
                                                             <td>{parseInt(key) + 1}</td>
                                                             <td>{q.questions}</td>
                                                             <td>{responseQuestion.answers[activeFileName][key]}</td>
-                                                            <td>
-                                                                <Form.Control
-                                                                    type="text"
-                                                                    value={comments[activeFileName]?.[key] || ''} // Fetch the comment dynamically
-                                                                    onChange={(e) => handleCommentChange(key, e.target.value, activeFileName)}
-                                                                    placeholder="Add comment"
-                                                                />
+                                                            <td className="p-2 text-center">
+                                                            <button
+                                                                style={{ cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
+                                                                onClick={handleShow}
+                                                                title="Add Comment"
+                                                                aria-label="Add Comment"
+                                                                >
+                                                                <svg
+                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                    width="16"
+                                                                    height="16"
+                                                                    fill="currentColor"
+                                                                    className="bi bi-plus-square"
+                                                                    viewBox="0 0 16 16"
+                                                                >
+                                                                    <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z" />
+                                                                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+                                                                </svg>
+                                                                </button>
+                                                            {show && ( 
+                                                                <Modal 
+                                                                    show={show}
+                                                                    onHide={handleClose}
+                                                                    backdrop=""
+                                                                    keyboard={false}
+                                                                    style={{backgroundColor: 'rgba(0, 0, 0, 0.1)'}}
+                                                                >
+                                                                    <Modal.Header closeButton>
+                                                                        <Modal.Title>Add Comment</Modal.Title>
+                                                                    </Modal.Header>
+                                                                    <Modal.Body>
+                                                                        <Form.Control
+                                                                            as="textarea"
+                                                                            value={comments[activeFileName]?.[key] || ''} // Fetch dynamically
+                                                                            onChange={(e) => handleCommentChange(key, e.target.value, activeFileName)}
+                                                                            placeholder="Add comment"
+                                                                            style={{ height: '100px' }} 
+                                                                        />
+                                                                    </Modal.Body>
+                                                                    <Modal.Footer>
+                                                                        <Button variant="secondary" onClick={handleClose}>
+                                                                            Close
+                                                                        </Button>
+                                                                        <Button variant="primary" onClick={handleClose}>
+                                                                            Save Changes
+                                                                        </Button>
+                                                                    </Modal.Footer>
+                                                                </Modal>
+                                                            )}
+
                                                             </td>
                                                         </tr>
                                                     )
