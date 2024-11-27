@@ -6,7 +6,7 @@ import Minus from './Minus';
 
 const DueDiligenceQueries = (props) => {
   const { questions: contextQuestions, handleSetQuestions,activeFileName,setActiveFileName,fileQuestions, setFileQuestions, } = useContext(ChatContext); // Use context
-  const [questions, setQuestions] = useState(fileQuestions || []);
+  const [questions, setQuestions] = useState( []);
   const [newQuestion, setNewQuestion] = useState({
     area_of_practice_id: 0,
     document_type_id: 0,
@@ -15,8 +15,8 @@ const DueDiligenceQueries = (props) => {
     newQuestion: true,
   });
     useEffect(() => {
-
-    }, [questions]);
+      setQuestions(fileQuestions)
+    }, [questions,fileQuestions]);
 
   const handleNewQuestionChange = (e) => {
     setNewQuestion((current) => ({
@@ -48,7 +48,14 @@ const DueDiligenceQueries = (props) => {
   };
 
   const handleRemoveQuestion = (id) => {
-    const updatedQuestions = questions.filter((question) => question.id !== id);
+    console.log(typeof(questions),questions) // this output object
+    const updatedActiveFileQuestions = questions[activeFileName].filter(
+      (question) => parseInt(question.id) !== parseInt(id)
+  );
+    const updatedQuestions = {
+      ...questions, // Spread the current questions object
+      [activeFileName]: updatedActiveFileQuestions, // Update the active file
+  };
     setQuestions(updatedQuestions); // Update local state
     handleSetQuestions(updatedQuestions); // Save to context
   };

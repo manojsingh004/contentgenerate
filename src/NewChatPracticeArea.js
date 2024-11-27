@@ -93,7 +93,7 @@ const NewChatPracticeArea = () => {
     }, []); // Empty dependency array ensures it runs once on component mount
     useEffect(()=>{
         console.log('sdnfoasdf',fileQuestions)
-    },[fileQuestions])
+    },[fileQuestions,fileName])
     const handlePracticeAreaChange = (e) => {
         const selectedAreaId = parseInt(e.target.value);
         setSelectedPracticeArea(selectedAreaId);
@@ -309,7 +309,7 @@ const NewChatPracticeArea = () => {
                                                 <Form.Label>Uploaded Files</Form.Label>
                                             </Form.Group>
                                             <div className="d-flex">
-                                                <Button className="" style={{ marginRight: "10px" }} onChange={handleFileInput} multiple>
+                                                <Button className="" style={{ marginRight: "10px" }}  multiple>
                                                     <input
                                                         type="file"
                                                         id="fileInput"

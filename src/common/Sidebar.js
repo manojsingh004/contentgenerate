@@ -118,7 +118,10 @@ const Sidebar = () => {
                                     <path d="M4.80566 6.53333H4.81165" stroke="#001434" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
                                 </svg>
                                 <Link
-                                        to={`/chat-practice-list/${item.id}/`}
+                                        onClick={(e)=>{
+                                            e.preventDefault();
+                                            window.location = `/chat-practice-list/${item.id}/`
+                                        }}
                                         className='text-decoration-none'
                                     >
                                         {item.name}
@@ -134,7 +137,11 @@ const Sidebar = () => {
                                     console.log(associativeArray[0],'testsdasd')
                                     return (<ListGroup.Item as="li" >
                                     <Link
-                                        to={`/chat-route/${response.id}`}
+                                        
+                                        onClick={(e)=>{
+                                            e.preventDefault();
+                                            window.location = `/chat-route/${response.id}`
+                                        }}
                                         key={response.id}
                                         className='text-decoration-none'
                                     >

@@ -243,8 +243,12 @@ const ChatResponse = () => {
     };
 
     const handleFileInput = async (e) => {
+        const files = e.target.files; // Array of selected files
         const formData = new FormData();
-        formData.append('file', e.target.files[0]); // Append file
+
+        for (const file of files) {
+            formData.append('file[]', file); // Append each file to the array in FormData
+        }
         formData.append('id', chatId);
         formData.append('area_of_practice_id', selectedPracticeArea);
         formData.append('document_type_id', selectedDocumentType);
@@ -255,19 +259,22 @@ const ChatResponse = () => {
             const response = await fetch('https://dev.ciceroai.net/api/upload-file', {
                 method: 'POST',
                 body: formData,
-                credentials: 'include', // Include credentials (cookies)
+                credentials: 'include',
                 headers: {
-                    'X-XSRF-TOKEN': Cookies.get('XSRF-TOKEN'), // Set the XSRF token from the cookie
+                    'X-XSRF-TOKEN': xsrfToken, // Set the XSRF token from the cookie
                 },
             });
-            handleFileChange(e.target.files[0]);
+
+            // Update the context with files
+
             if (response.ok) {
                 const updatedData = await response.json(); // Assume the response is JSON data
+                await handleFileChange(updatedData.success);
+                console.log('Files uploaded successfully:', updatedData);
             }
         } catch (error) {
-            console.log(error)
+            console.error('Error uploading files:', error);
         }
-
     };
     const handleActiveQuestionList = (key,file)=>{
         setActiveFileName(file);        
@@ -397,7 +404,7 @@ const ChatResponse = () => {
                                             <Form.Label>Uploaded Files</Form.Label>
                                         </Form.Group>
                                         <div className="d-flex">
-                                        {/* <Button className="" style={{ marginRight: "10px" }} onChange={handleFileInput} multiple>
+                                        <Button className="" style={{ marginRight: "10px" }} onChange={handleFileInput} multiple>
                                                     <input
                                                         type="file"
                                                         id="fileInput"
@@ -414,7 +421,7 @@ const ChatResponse = () => {
                                                     <span>
                                                         Upload Document
                                                     </span>
-                                                </Button> */}
+                                                </Button>
 
 
                                                 {fileName.map((item, key) => {

@@ -54,7 +54,7 @@ const LegalChatbotGPT = () => {
     const handleClose = () => setShow(false);
     const handleShow = (key, item) => {
         setDeleteSelect(item)
-        setShow(true)
+        setShow(true);
     };
 
     // Rajiv Code Start
