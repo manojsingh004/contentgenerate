@@ -59,6 +59,7 @@ const ChatResponse = () => {
                 const updatedData = await response.json();
                 const dataFileName = JSON.parse(updatedData.original_file_name);
                 setFileName(dataFileName);
+                document.querySelector("#fileInputMulti").value='';
                 setActiveFileName(dataFileName[0]);
                 setShow(false)
             } else {
@@ -407,7 +408,7 @@ const ChatResponse = () => {
                                         <Button className="" style={{ marginRight: "10px" }} onChange={handleFileInput} multiple>
                                                     <input
                                                         type="file"
-                                                        id="fileInput"
+                                                        id="fileInputMulti"
                                                         accept=".doc,.docx,.xls,.xlsx,.pdf"
                                                         onChange={handleFileInput}
                                                         className="position-absolute"

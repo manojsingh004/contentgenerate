@@ -22,6 +22,7 @@ export const ChatProvider = ({ children }) => {
     const [uploadedFile, setUploadedFile] = useState(null); // New state to store the uploaded file
     const [isUploaded, setIsUploaded] = useState(false);
     const [questions, setQuestions] = useState([]);
+    const [questionsList, setQuestionsList] = useState([]);
     const [fileQuestions, setFileQuestions] = useState([]);
     const [newQuestion, setNewQuestion] = useState("");
     const [responseQuestion, setResponseQuestion] = useState([]);
@@ -87,6 +88,7 @@ export const ChatProvider = ({ children }) => {
 
     // Handle file upload
     const handleFileChange = (selectedFile) => {
+        console.log(selectedFile,'test46')
         if (selectedFile) {
             const dataFileName = JSON.parse(selectedFile.original_file_name);
             setFileName(dataFileName); // Save the file name(s) in state
@@ -98,14 +100,16 @@ export const ChatProvider = ({ children }) => {
             dataFileName.forEach((fileName) => {
                 // Check if the file name already exists as a key in fileQuestions
                 if (!updatedFileQuestions[fileName]) {
+                    fetchQuestion(selectedDocumentType)
                     // If it doesn't exist, add it with an empty array as the default question list
+                    console.log(questions,'add question for file')
                     updatedFileQuestions[fileName] = questions;
                 }
             });
             if(activeFileName===''){
-                setActiveFileName(dataFileName[0]);
+                setActiveFileName(dataFileName[dataFileName.length -1]);
             }
-            console.log(updatedFileQuestions,'test46')
+            
             // Set the updated file questions to the state
             setFileQuestions(updatedFileQuestions);
             setUploadedFile(selectedFile); // Save the actual file in the state

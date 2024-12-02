@@ -50,14 +50,15 @@ const DueDiligenceQueries = (props) => {
   const handleRemoveQuestion = (id) => {
     console.log(typeof(questions),questions) // this output object
     const updatedActiveFileQuestions = questions[activeFileName].filter(
-      (question) => parseInt(question.id) !== parseInt(id)
+      (question) => question.id !== id
   );
     const updatedQuestions = {
       ...questions, // Spread the current questions object
       [activeFileName]: updatedActiveFileQuestions, // Update the active file
   };
-    setQuestions(updatedQuestions); // Update local state
-    handleSetQuestions(updatedQuestions); // Save to context
+  console.log(updatedActiveFileQuestions,updatedQuestions,'test47')
+  //  setQuestions(updatedQuestions); // Update local state
+    setFileQuestions(current=>updatedQuestions); // Save to context
   };
 
   const handleSaveQuestions =  () => {
@@ -88,7 +89,7 @@ const DueDiligenceQueries = (props) => {
     <div>
       {/* List of Questions */}
       <ul style={{ listStyle: "none", padding: "0" }}>
-        {questions[activeFileName]!==undefined && questions[activeFileName].map((question, index) => (
+        {questions?.[activeFileName]!==undefined && questions[activeFileName].map((question, index) => (
           <li
             key={index}
             style={{

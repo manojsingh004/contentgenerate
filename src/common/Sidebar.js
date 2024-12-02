@@ -46,7 +46,7 @@ const Sidebar = () => {
 
             const data = await response.json();
             setPracticeArea(data);
-            console.log(data);
+           // console.log(data);
         } catch (error) {
             console.error("Error searching:", error);
         }
@@ -129,12 +129,18 @@ const Sidebar = () => {
                             </Accordion.Header>
                             <Accordion.Body>
                             <ListGroup as="ul" className="scrollable">
-                                {typeof(item.responses)!==undefined  && item?.responses && Array.isArray(item.responses) && item.responses.map((response) =>{ 
-                                    console.log(response.title)
-                                    if(response.title!==null){
-                                    const associativeArray = Object.keys(JSON.parse(response.title)).map(key => ( JSON.parse(response.title)[key] ));
+                                {typeof(item.responses)!==undefined &&item.responses!==null  && item?.responses && Array.isArray(item.responses) && item.responses.map((response) =>{ 
+                                 //   console.log(response.title)
+                                    if(response.title!==null && JSON.parse(response.title) !== null){
+                                      //  console.log(response.title,'sdfsdf',JSON.parse(response.title))
+                                        const associativeArray = Object.keys(JSON.parse(response.title)).map(key => {
+                                        //console.log(key,'zzzzzzzsdfsdfsdf')
+                                        if( key!==null){
+                                        return ( JSON.parse(response.title)[key] )
+                                    }
+                                    });
 
-                                    console.log(associativeArray[0],'testsdasd')
+                                    //console.log(associativeArray[0],'testsdasd')
                                     return (<ListGroup.Item as="li" >
                                     <Link
                                         
