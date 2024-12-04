@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';  // Import useNavigate
 import Cookies from 'js-cookie'; // Import the js-cookie library
 import ScaleLoader from 'react-spinners/ScaleLoader';
 import Modal from 'react-bootstrap/Modal';
-
+import axios from 'axios';
 
 const NewChatPracticeArea = () => {
     const {
@@ -26,7 +26,9 @@ const NewChatPracticeArea = () => {
     const [loading, setLoading] = useState(false); // Add loading state
     const [show, setShow] = useState(false);
     const [deleteSelect, setDeleteSelect] = useState('');
-
+    const [showDocType, setShowDocType] = useState(false);
+    const [editSelected, setEditSelected] = useState('');
+    const [documentId,setDocumentId] = useState(selectedDocumentType);
     const handleClose = () => setShow(false);
     const handleShow = (key, item) => {
 
@@ -154,10 +156,12 @@ const NewChatPracticeArea = () => {
         const files = e.target.files; // Array of selected files
         const formData = new FormData();
         console.log("Selected files:", files);
-
+        const arrayData = [];
         for (const file of files) {
             formData.append('file[]', file); // Append each file to the array in FormData
+            arrayData.push(file.name)
         }
+        setEditSelected(arrayData);
         formData.append('id', chatId);
         formData.append('area_of_practice_id', selectedPracticeArea);
         formData.append('document_type_id', selectedDocumentType);
@@ -180,6 +184,7 @@ const NewChatPracticeArea = () => {
                 const updatedData = await response.json(); // Assume the response is JSON data
                 handleFileChange(updatedData.success);
                 console.log('Files uploaded successfully:', updatedData);
+                setShowDocType(true);
             }
         } catch (error) {
             console.error('Error uploading files:', error);
@@ -214,6 +219,29 @@ const NewChatPracticeArea = () => {
             console.error('Error uploading file:', error);
         }
     };
+    const handleDocumentType = async(e)=>{
+       
+        try {
+            const response = await axios.get(`https://dev.ciceroai.net/api/get-question/${documentId}/${selectedPracticeArea}`);
+            // setQuestions(response.data);
+            editSelected.forEach(element => {
+                setFileQuestions((prevFileQuestions) => ({
+                    ...prevFileQuestions,
+                    [element]: response.data,
+                  })); 
+            });
+            
+            console.log(response, 'data response')
+        } catch (error) {
+            console.error("Error fetching questions:", error);
+        }
+        setShowDocType(false);
+       
+    }
+    const handleShowDocumentType = (key, item) => {
+        setShowDocType(true);
+        setEditSelected([item]);
+    }
     const handleActiveQuestionList = (key, file) => {
         setActiveFileName(file);
     }
@@ -243,6 +271,45 @@ const NewChatPracticeArea = () => {
                     </Modal.Footer>
                 </Modal>
             )}
+            {showDocType && (
+                    <Modal
+                        show={showDocType}
+                        onHide={()=>setShowDocType(false)}
+                        backdrop=""
+                        keyboard={false}
+                        style={{ backgroundColor: 'rgba(0, 0, 0, 0.1)' }}
+                    >
+                        <Modal.Header closeButton>
+                            <Modal.Title>Edit Document Type</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                        {selectedPracticeArea !== 0 && (
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Select Document Type</Form.Label>
+                                    <Form.Select value={selectedDocumentType}  onChange={(e)=>{
+                                       
+                                            const selectedDocumentId = e.target.value;
+                                            setDocumentId(selectedDocumentId);
+                                        
+                                    }}>
+                                        <option value="">Select Document Type</option>
+                                        {documentTypes.map((type) => (
+                                            <option key={type.id} value={type.id}>{type.name}</option>
+                                        ))}
+                                    </Form.Select>
+                                </Form.Group>
+                        )}
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="secondary" onClick={()=>setShowDocType(false)}>
+                                Close
+                            </Button>
+                            <Button variant="primary" onClick={handleDocumentType}>
+                                Delete
+                            </Button>
+                        </Modal.Footer>
+                    </Modal>
+                )}
             <Container fluid>
                 <Row>
                     <h3 className='fs24 ps-4'>New DD Case</h3>
@@ -368,6 +435,9 @@ const NewChatPracticeArea = () => {
                                                                     <path opacity="0.4" d="M9.75 16.5C13.8921 16.5 17.25 13.1421 17.25 9C17.25 4.85786 13.8921 1.5 9.75 1.5C5.60786 1.5 2.25 4.85786 2.25 9C2.25 13.1421 5.60786 16.5 9.75 16.5Z" fill="#B0B0B0" />
                                                                     <path d="M10.5445 9.00007L12.2695 7.27508C12.487 7.05758 12.487 6.69758 12.2695 6.48008C12.052 6.26258 11.692 6.26258 11.4745 6.48008L9.74955 8.20507L8.02452 6.48008C7.80702 6.26258 7.44702 6.26258 7.22953 6.48008C7.01203 6.69758 7.01203 7.05758 7.22953 7.27508L8.95455 9.00007L7.22953 10.7251C7.01203 10.9426 7.01203 11.3026 7.22953 11.5201C7.34203 11.6326 7.48452 11.6851 7.62702 11.6851C7.76952 11.6851 7.91202 11.6326 8.02452 11.5201L9.74955 9.79507L11.4745 11.5201C11.587 11.6326 11.7295 11.6851 11.872 11.6851C12.0145 11.6851 12.157 11.6326 12.2695 11.5201C12.487 11.3026 12.487 10.9426 12.2695 10.7251L10.5445 9.00007Z" fill="#292D32" />
                                                                 </svg>
+                                                            </span>
+                                                            <span className='position-absolute type-doc' onClick={() => handleShowDocumentType(key, item)} key={key}>
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"></path><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"></path></svg>
                                                             </span>
                                                         </span>)
                                                 })}

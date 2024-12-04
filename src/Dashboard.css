@@ -225,6 +225,11 @@ body{
     top: -12px;
     cursor: pointer;
 }
+.type-doc{
+    right: -7px;
+    top: 0px;
+    cursor: pointer;
+}
 .navbar-nav .nav-link{
     padding-left: 0 !important;
     padding-right: 0 !important;
