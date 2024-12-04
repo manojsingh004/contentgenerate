@@ -129,6 +129,10 @@ body{
 .active .upolad-file-name, .upolad-file-name:hover{
     background-color: #DEF2FF;
 }
+.upolad-file-name.active{
+    background-color: #DEF2FF;
+    border: 1px solid #0a58ca;
+}
 .card {
     border-radius: 8px;
 }
@@ -219,17 +223,27 @@ body{
     flex-grow: 1;
     overflow-y: auto;
 }
-
+.edit-delete-option{
+    right: -17px;
+    top: -4px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    width: 16px;
+}
+.cursor-pointer{
+    cursor: pointer;
+}
 .close-doc{
     right: -7px;
     top: -12px;
     cursor: pointer;
 }
-.type-doc{
+/* .type-doc{
     right: -7px;
     top: 0px;
     cursor: pointer;
-}
+} */
 .navbar-nav .nav-link{
     padding-left: 0 !important;
     padding-right: 0 !important;

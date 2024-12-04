@@ -471,11 +471,11 @@ const LegalChatbotGPT = () => {
                             <div className="d-flex mt-2">
                                 {fileName.length > 0 && fileName.map((item, key) => {
                                     return (
-                                        <span className={`fs18 position-relative pe-2 ${(activeFileName == item ? 'active' : '')}`} style={{ marginLeft: '8px' }} data-file={item} onClick={() => handleActiveQuestionList(key, item)} key={key}>
-                                            {item}
+                                        <span className={`upolad-file-name rounded-2 p-2 fs18 position-relative pe-2 cursor-pointer ${(activeFileName == item ? 'active' : '')}`} style={{ marginLeft: '8px' }} data-file={item} onClick={() => handleActiveQuestionList(key, item)} key={key}>
+                                            <span className='midnight-blue'>{item}</span>
                                             <span className='position-absolute close-doc' onClick={() => handleShow(key, item)} key={key}>
-                                                <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path opacity="0.4" d="M9.75 16.5C13.8921 16.5 17.25 13.1421 17.25 9C17.25 4.85786 13.8921 1.5 9.75 1.5C5.60786 1.5 2.25 4.85786 2.25 9C2.25 13.1421 5.60786 16.5 9.75 16.5Z" fill="#B0B0B0" />
+                                                <svg title="Delete" width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path opacity="0.6" d="M9.75 16.5C13.8921 16.5 17.25 13.1421 17.25 9C17.25 4.85786 13.8921 1.5 9.75 1.5C5.60786 1.5 2.25 4.85786 2.25 9C2.25 13.1421 5.60786 16.5 9.75 16.5Z" fill="#B0B0B0" />
                                                     <path d="M10.5445 9.00007L12.2695 7.27508C12.487 7.05758 12.487 6.69758 12.2695 6.48008C12.052 6.26258 11.692 6.26258 11.4745 6.48008L9.74955 8.20507L8.02452 6.48008C7.80702 6.26258 7.44702 6.26258 7.22953 6.48008C7.01203 6.69758 7.01203 7.05758 7.22953 7.27508L8.95455 9.00007L7.22953 10.7251C7.01203 10.9426 7.01203 11.3026 7.22953 11.5201C7.34203 11.6326 7.48452 11.6851 7.62702 11.6851C7.76952 11.6851 7.91202 11.6326 8.02452 11.5201L9.74955 9.79507L11.4745 11.5201C11.587 11.6326 11.7295 11.6851 11.872 11.6851C12.0145 11.6851 12.157 11.6326 12.2695 11.5201C12.487 11.3026 12.487 10.9426 12.2695 10.7251L10.5445 9.00007Z" fill="#292D32" />
                                                 </svg>
                                             </span>
@@ -486,8 +486,8 @@ const LegalChatbotGPT = () => {
                             </div>
                             <div ref={contentCompleteRef} className="d-flex flex-column">
 
-                                <div className="d-flex position-relative flex-column">
-                                    <div className="d-flex justify-content-end gap-3">
+                                <div className="d-flex position-relative flex-column mt-2">
+                                    <div className="d-flex justify-content-end gap-2">
                                         <span>
                                             <Link
                                              className={`${( activePrint)?'d-none':''}`}
